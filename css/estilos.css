@@ -1,0 +1,161 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(to right, #006455, #ffffff);
+  overflow: hidden;
+}
+
+.layout {
+  min-height: 100vh;
+}
+
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  min-height: 60px;
+  background-image: url("../img/superior.jpeg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.header-container {
+  width: min(100%, 1140px);
+  min-height: 60px;
+  margin: 0 auto;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand-logos {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo-gob {
+  display: block;
+  max-height: 50px;
+  width: auto;
+}
+
+.logo-dpti {
+  display: block;
+  max-height: 45px;
+  width: auto;
+}
+
+.logo-divider {
+  width: 1px;
+  height: 35px;
+  background: #ffffff;
+}
+
+.bloque-global {
+  position: relative;
+  height: calc(100vh - 120px);
+  margin-top: 60px;
+  padding: 0;
+  z-index: 1;
+}
+
+.bloque-global::before {
+  content: none;
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)),
+    url("../img/slide1.jpg");
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+}
+
+.mapa-home {
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+}
+
+.mapa-jornaleros {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #ffffff;
+}
+
+.site-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  min-height: 60px;
+}
+
+.gob-footer-banner {
+  min-height: 60px;
+  background-image: url("../img/inferior.jpeg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-bottom: 10px solid #006455;
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    padding-inline: 12px;
+  }
+
+  .brand-logos {
+    gap: 12px;
+  }
+
+  .logo-gob {
+    max-height: 42px;
+  }
+
+  .logo-dpti {
+    max-height: 38px;
+  }
+
+  .site-footer,
+  .gob-footer-banner {
+    min-height: 50px;
+  }
+}
+
+@media (max-width: 576px) {
+  .logo-gob {
+    max-height: 36px;
+  }
+
+  .logo-dpti {
+    max-height: 32px;
+  }
+
+  .logo-divider {
+    height: 30px;
+  }
+
+  .site-footer,
+  .gob-footer-banner {
+    min-height: 40px;
+  }
+}
