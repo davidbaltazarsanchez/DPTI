@@ -3,10 +3,13 @@
 <style>
  html,body{margin:0;height:100%} #map{height:100%;background:#ddd}
  #err{display:none;position:fixed;z-index:9999;top:0;left:0;right:0;padding:10px 14px;background:#b00020;color:#fff;font:12px/1.4 monospace;white-space:pre-wrap;max-height:50vh;overflow:auto}
- .leyenda{background:#fff;padding:8px 10px;font:12px/1.35 system-ui;border-radius:6px;box-shadow:0 1px 5px rgba(0,0,0,.3);max-height:42vh;overflow:auto}
- .leyenda i{display:inline-block;width:12px;height:12px;margin-right:6px;border-radius:2px;vertical-align:-1px}
- .leaflet-control-layers-tree{max-height:82vh;overflow:auto}
- .escudo-vial .esc{width:30px;height:34px;background-image:var(--escudo);background-size:contain;background-repeat:no-repeat;background-position:center;display:flex;align-items:flex-end;justify-content:center;cursor:pointer}
+ .leyenda{background:#fff;padding:6px 9px;font:10.5px/1.32 system-ui;border-radius:6px;box-shadow:0 1px 5px rgba(0,0,0,.3);max-height:32vh;overflow:auto;max-width:225px}
+ .leyenda i{display:inline-block;width:10px;height:10px;margin-right:5px;border-radius:2px;vertical-align:-1px}
+ .leyenda h4{margin:0 0 3px 0;font:600 11px system-ui;cursor:pointer;user-select:none}
+ .leyenda h4 span{font-weight:400;color:#666}
+ .leyenda.plegada .items{display:none}
+ .leaflet-control-layers-tree,.leaflet-control-layers-overlays{max-height:52vh;overflow-y:auto;overflow-x:hidden}
+ .leaflet-control-layers{max-height:60vh;overflow-y:auto;overflow-x:hidden} .escudo-vial .esc{width:30px;height:34px;background-image:var(--escudo);background-size:contain;background-repeat:no-repeat;background-position:center;display:flex;align-items:flex-end;justify-content:center;cursor:pointer}
  .escudo-vial .esc span{color:#000;font:bold 12px system-ui;padding-bottom:5px}
  .etq-cab{background:rgba(0,0,0,.55);border:0;box-shadow:none;color:#fff;font:600 13px system-ui;padding:2px 6px}
  .etq-cab:before{display:none}
@@ -1285,7 +1288,15 @@ const bases={label:'Mapa base',children:[{label:'Satelite',layer:sat},{label:'Op
 L.control.layers.tree(bases,overlay,{collapsed:false,namedToggle:true,collapseAll:'Colapsar todo',expandAll:'Expandir todo'}).addTo(map);
 try{map.fitBounds(BOUNDS,{padding:[20,20]});}catch(e){}
 const lg=L.control({position:'bottomright'});
-lg.onAdd=function(){const div=L.DomUtil.create('div','leyenda');var h='<b>Temas</b><br>';for(const t in COLOR_TEMA){h+='<i style="background:'+COLOR_TEMA[t]+'"></i>'+t+'<br>';}div.innerHTML=h;return div;};
+lg.onAdd=function(){const div=L.DomUtil.create('div','leyenda');
+ var h='<h4>Temas <span>(ocultar)</span></h4><div class="items">';
+ for(const t in COLOR_TEMA){h+='<i style="background:'+COLOR_TEMA[t]+'"></i>'+t+'<br>';}
+ div.innerHTML=h+'</div>';
+ L.DomEvent.disableClickPropagation(div);
+ L.DomEvent.disableScrollPropagation(div);
+ div.querySelector('h4').onclick=function(){div.classList.toggle('plegada');
+  this.querySelector('span').textContent=div.classList.contains('plegada')?'(mostrar)':'(ocultar)';};
+ return div;};
 lg.addTo(map);
 }catch(e){window.__err('ERROR: '+(e&&e.stack?e.stack:e));}
 </script></body></html>
