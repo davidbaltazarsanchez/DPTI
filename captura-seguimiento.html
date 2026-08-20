@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Seguimiento de acciones</title>
+    <link rel="stylesheet" href="css/estilos.css" />
+    <link rel="stylesheet" href="css/seguimiento.css" />
+  </head>
+  <body class="seguimiento-page">
+    <div class="layout seguimiento-layout">
+      <header id="menu_principal" class="site-header">
+        <div class="header-container seguimiento-header">
+          <button
+            id="menu-toggle"
+            class="menu-toggle"
+            type="button"
+            aria-label="Abrir menú"
+            aria-expanded="false"
+            aria-controls="menu-lateral"
+          >
+            <span class="menu-toggle__line" aria-hidden="true"></span>
+            <span class="menu-toggle__line" aria-hidden="true"></span>
+            <span class="menu-toggle__line" aria-hidden="true"></span>
+          </button>
+
+          <div class="brand-logos" aria-label="Logotipos institucionales">
+            <img
+              src="img/logo-gob-mx_ok.png"
+              class="logo-gob"
+              alt="Gobierno de México"
+            />
+          </div>
+
+          <div
+            id="seguimiento-header-usuario"
+            class="seguimiento-header__usuario"
+            hidden
+          >
+            <div class="seguimiento-header__identidad">
+              <strong id="seguimiento-header-nombre"></strong>
+              <span id="seguimiento-header-rol"></span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          id="menu-lateral-backdrop"
+          class="menu-lateral-backdrop offcanvas-backdrop"
+          aria-hidden="true"
+          hidden
+        ></div>
+
+        <aside
+          id="menu-lateral"
+          class="menu-lateral offcanvas"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menú principal"
+          aria-hidden="true"
+          tabindex="-1"
+        >
+          <nav class="menu-lateral__nav" aria-label="Navegación principal">
+            <ul class="menu-lateral__items menu-items">
+              <li>
+                <a class="menu-lateral__item menu-item" href="index.html">
+                  <span class="menu-lateral__item-content menu-item__content">
+                    <svg
+                      class="menu-lateral__icon menu-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="m3 11 9-8 9 8" />
+                      <path d="M5 10v10h14V10" />
+                      <path d="M9 20v-6h6v6" />
+                    </svg>
+                    <span>Inicio</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="menu-lateral__item menu-item"
+                  href="captura-seguimiento.html"
+                  aria-current="page"
+                >
+                  <span class="menu-lateral__item-content menu-item__content">
+                    <svg
+                      class="menu-lateral__icon menu-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        d="M9 5h6m-5-2h4a1 1 0 0 1 1 1v2H9V4a1 1 0 0 1 1-1Z"
+                      />
+                      <path
+                        d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"
+                      />
+                      <path d="M8 11h8M8 15h8M8 19h5" />
+                    </svg>
+                    <span>Seguimiento de acciones</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <button
+                  id="cerrar-sesion"
+                  class="menu-lateral__item menu-item"
+                  type="button"
+                >
+                  <span class="menu-lateral__item-content menu-item__content">
+                    <svg
+                      class="menu-lateral__icon menu-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="M10 5H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h5" />
+                      <path d="M14 8l4 4-4 4M18 12H8" />
+                    </svg>
+                    <span>Cerrar Sesión</span>
+                  </span>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </aside>
+      </header>
+
+      <main id="seguimiento-app" class="seguimiento-app">
+        <p
+          id="seguimiento-aviso"
+          class="seguimiento-aviso"
+          role="status"
+          aria-live="polite"
+          hidden
+        ></p>
+
+        <section
+          id="seguimiento-login"
+          class="seguimiento-login"
+          aria-labelledby="seguimiento-login-titulo"
+          hidden
+        >
+          <div class="seguimiento-login__bienvenida">
+            <div class="seguimiento-login__marca">
+              <span class="seguimiento-login__sello">Gobierno de México</span>
+              <span>Seguimiento institucional</span>
+            </div>
+            <p class="seguimiento-sobretitulo">Tablero de seguimiento</p>
+            <h1>Acciones prioritarias<br />de San Quintín</h1>
+            <p class="seguimiento-login__descripcion">
+              Consulta avances, registra actualizaciones y concentra evidencias
+              en un solo lugar.
+            </p>
+            <ul
+              class="seguimiento-login__etiquetas"
+              aria-label="Características"
+            >
+              <li>Información por dependencia</li>
+              <li>Historial de avances</li>
+              <li>Acceso seguro</li>
+            </ul>
+          </div>
+
+          <div class="seguimiento-login__formulario">
+            <div class="seguimiento-login__formulario-contenido">
+              <p class="seguimiento-sobretitulo">Acceso al sistema</p>
+              <h2 id="seguimiento-login-titulo">Iniciar sesión</h2>
+              <p>Ingresa con la cuenta que te proporcionó el administrador.</p>
+
+              <form id="seguimiento-login-form" novalidate>
+                <div class="seguimiento-campo">
+                  <label for="seguimiento-correo">Correo electrónico</label>
+                  <input
+                    id="seguimiento-correo"
+                    name="email"
+                    type="email"
+                    inputmode="email"
+                    autocomplete="username"
+                    placeholder="nombre@institucion.gob.mx"
+                    required
+                  />
+                </div>
+
+                <div class="seguimiento-campo">
+                  <label for="seguimiento-contrasena">Contraseña</label>
+                  <div class="seguimiento-contrasena">
+                    <input
+                      id="seguimiento-contrasena"
+                      name="password"
+                      type="password"
+                      autocomplete="current-password"
+                      required
+                    />
+                    <button
+                      id="seguimiento-mostrar-contrasena"
+                      class="seguimiento-contrasena__control"
+                      type="button"
+                      aria-label="Mostrar contraseña"
+                      aria-pressed="false"
+                    >
+                      Mostrar
+                    </button>
+                  </div>
+                </div>
+
+                <p
+                  id="seguimiento-login-mensaje"
+                  class="seguimiento-mensaje"
+                  role="alert"
+                  aria-live="polite"
+                  hidden
+                ></p>
+
+                <button
+                  id="seguimiento-ingresar"
+                  class="seguimiento-boton seguimiento-boton--primario"
+                  type="submit"
+                >
+                  Ingresar
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="seguimiento-cargando"
+          class="seguimiento-estado seguimiento-estado--principal"
+          aria-live="polite"
+        >
+          <span class="seguimiento-cargador" aria-hidden="true"></span>
+          <p id="seguimiento-cargando-texto">
+            Preparando tu espacio de trabajo…
+          </p>
+        </section>
+
+        <section
+          id="seguimiento-bloqueo"
+          class="seguimiento-estado seguimiento-estado--principal"
+          aria-labelledby="seguimiento-bloqueo-titulo"
+          hidden
+        >
+          <span class="seguimiento-estado__numero" aria-hidden="true">!</span>
+          <h1 id="seguimiento-bloqueo-titulo">Acceso pendiente</h1>
+          <p id="seguimiento-bloqueo-mensaje"></p>
+          <button
+            id="seguimiento-bloqueo-salir"
+            class="seguimiento-boton seguimiento-boton--secundario"
+            type="button"
+          >
+            Cerrar sesión
+          </button>
+        </section>
+
+        <section
+          id="seguimiento-tablero"
+          class="seguimiento-tablero"
+          aria-label="Tablero de seguimiento"
+          hidden
+        >
+          <div class="seguimiento-contexto">
+            <span
+              id="seguimiento-contexto-rol"
+              class="seguimiento-contexto__rol"
+            ></span>
+            <p>
+              La información visible corresponde a los permisos de tu cuenta.
+            </p>
+          </div>
+
+          <div class="seguimiento-tablero__rejilla">
+            <aside
+              class="seguimiento-temas"
+              aria-labelledby="seguimiento-temas-titulo"
+            >
+              <div class="seguimiento-seccion-titulo">
+                <div>
+                  <small>Catálogo</small>
+                  <h2 id="seguimiento-temas-titulo">Temas</h2>
+                </div>
+              </div>
+              <div
+                id="seguimiento-temas-estado"
+                class="seguimiento-estado seguimiento-estado--panel"
+                aria-live="polite"
+              >
+                Consultando temas autorizados…
+              </div>
+              <div
+                id="seguimiento-temas-lista"
+                class="seguimiento-temas__lista"
+              ></div>
+            </aside>
+
+            <div class="seguimiento-contenido">
+              <nav class="seguimiento-breadcrumb" aria-label="Ruta actual">
+                <span>Seguimiento</span>
+                <span aria-hidden="true">/</span>
+                <strong id="seguimiento-breadcrumb-tema">Tema</strong>
+              </nav>
+
+              <header class="seguimiento-contenido__cabecera">
+                <div>
+                  <p class="seguimiento-sobretitulo">Tema seleccionado</p>
+                  <h1 id="seguimiento-tema-seleccionado">Selecciona un tema</h1>
+                </div>
+                <div class="seguimiento-contador" aria-live="polite">
+                  <strong id="seguimiento-acciones-contador">0</strong>
+                  <span>acciones de seguimiento</span>
+                </div>
+              </header>
+
+              <div class="seguimiento-contenido__columnas">
+                <section
+                  class="seguimiento-subtemas"
+                  aria-labelledby="seguimiento-subtemas-titulo"
+                >
+                  <div
+                    class="seguimiento-seccion-titulo seguimiento-seccion-titulo--claro"
+                  >
+                    <h2 id="seguimiento-subtemas-titulo">Subtemas</h2>
+                  </div>
+                  <div
+                    id="seguimiento-subtemas-estado"
+                    class="seguimiento-estado seguimiento-estado--panel"
+                    aria-live="polite"
+                  >
+                    Selecciona un tema.
+                  </div>
+                  <div
+                    id="seguimiento-subtemas-lista"
+                    class="seguimiento-subtemas__lista"
+                  ></div>
+                </section>
+
+                <section
+                  class="seguimiento-acciones"
+                  aria-labelledby="seguimiento-acciones-titulo"
+                >
+                  <div
+                    class="seguimiento-seccion-titulo seguimiento-seccion-titulo--claro"
+                  >
+                    <h2 id="seguimiento-acciones-titulo">
+                      Acciones a dar seguimiento
+                    </h2>
+                  </div>
+                  <div
+                    id="seguimiento-acciones-estado"
+                    class="seguimiento-estado seguimiento-estado--panel"
+                    aria-live="polite"
+                  >
+                    Selecciona un subtema.
+                  </div>
+                  <ol
+                    id="seguimiento-acciones-lista"
+                    class="seguimiento-acciones__lista"
+                  ></ol>
+                </section>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <div
+        id="seguimiento-detalle-backdrop"
+        class="seguimiento-modal-backdrop"
+        hidden
+      ></div>
+
+      <section
+        id="seguimiento-detalle-modal"
+        class="seguimiento-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="seguimiento-detalle-titulo"
+        aria-describedby="seguimiento-detalle-descripcion"
+        tabindex="-1"
+        hidden
+      >
+        <header class="seguimiento-modal__cabecera">
+          <div>
+            <p class="seguimiento-sobretitulo">Detalle de la acción</p>
+            <h2 id="seguimiento-detalle-titulo">Seguimiento</h2>
+            <p
+              id="seguimiento-detalle-descripcion"
+              class="seguimiento-modal__descripcion"
+            ></p>
+            <div
+              id="seguimiento-detalle-dependencias"
+              class="seguimiento-accion__meta"
+            ></div>
+          </div>
+          <button
+            id="seguimiento-detalle-cerrar"
+            class="seguimiento-modal__cerrar"
+            type="button"
+            aria-label="Cerrar detalle de la acción"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </header>
+
+        <div class="seguimiento-modal__contenido">
+          <section
+            id="seguimiento-captura-panel"
+            class="seguimiento-captura"
+            aria-labelledby="seguimiento-captura-titulo"
+          >
+            <div class="seguimiento-seccion-titulo seguimiento-seccion-titulo--claro">
+              <div>
+                <small>Nueva entrada</small>
+                <h3 id="seguimiento-captura-titulo">Registrar actualización</h3>
+              </div>
+            </div>
+
+            <form id="seguimiento-actualizacion-form" novalidate>
+              <div class="seguimiento-campo">
+                <label for="seguimiento-estatus">Estatus</label>
+                <select id="seguimiento-estatus" name="estatus" required>
+                  <option value="" selected disabled>Seleccione el Estatus</option>
+                  <option value="No Iniciado">No Iniciado</option>
+                  <option value="En Planeación">En Planeación</option>
+                  <option value="Por Iniciar">Por Iniciar</option>
+                  <option value="En Proceso">En Proceso</option>
+                  <option value="Sin Presupuesto">Sin Presupuesto</option>
+                  <option value="Concluido">Concluido</option>
+                </select>
+              </div>
+
+              <fieldset class="seguimiento-avance">
+                <legend>Porcentaje de avance</legend>
+                <div class="seguimiento-avance__controles">
+                  <input
+                    id="seguimiento-avance-rango"
+                    type="range"
+                    min="0"
+                    max="0"
+                    step="1"
+                    value="0"
+                    aria-label="Porcentaje de avance"
+                  />
+                  <label class="seguimiento-avance__numero">
+                    <span class="visually-hidden">Porcentaje de avance</span>
+                    <input
+                      id="seguimiento-avance-numero"
+                      name="porcentaje_avance"
+                      type="number"
+                      min="0"
+                      max="0"
+                      step="1"
+                      value="0"
+                      required
+                    />
+                    <span>%</span>
+                  </label>
+                </div>
+                <p id="seguimiento-avance-ayuda" class="seguimiento-campo__ayuda">
+                  El estatus No Iniciado requiere 0% de avance.
+                </p>
+              </fieldset>
+
+              <div class="seguimiento-campo">
+                <label for="seguimiento-comentarios">Comentarios</label>
+                <textarea
+                  id="seguimiento-comentarios"
+                  name="comentarios"
+                  rows="5"
+                  maxlength="4000"
+                  placeholder="Describe el avance, acuerdos o pendientes…"
+                  required
+                ></textarea>
+              </div>
+
+              <div id="seguimiento-archivo-campo" class="seguimiento-campo" hidden>
+                <label for="seguimiento-archivo">Evidencia</label>
+                <input
+                  id="seguimiento-archivo"
+                  name="archivo"
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.kml,.kmz"
+                />
+                <p class="seguimiento-campo__ayuda">
+                  PDF, JPG, PNG, Word, Excel, KML o KMZ. Máximo 2.5 MB.
+                </p>
+              </div>
+
+              <p
+                id="seguimiento-actualizacion-mensaje"
+                class="seguimiento-mensaje"
+                role="alert"
+                aria-live="polite"
+                hidden
+              ></p>
+
+              <button
+                id="seguimiento-guardar-actualizacion"
+                class="seguimiento-boton seguimiento-boton--primario"
+                type="submit"
+                disabled
+              >
+                Guardar actualización
+              </button>
+            </form>
+          </section>
+
+          <section
+            class="seguimiento-historial"
+            aria-labelledby="seguimiento-historial-titulo"
+          >
+            <div class="seguimiento-seccion-titulo seguimiento-seccion-titulo--claro">
+              <div>
+                <small>Bitácora</small>
+                <h3 id="seguimiento-historial-titulo">Historial</h3>
+              </div>
+            </div>
+            <div
+              id="seguimiento-historial-estado"
+              class="seguimiento-estado seguimiento-estado--panel"
+              aria-live="polite"
+            >
+              Consultando historial…
+            </div>
+            <ol
+              id="seguimiento-historial-lista"
+              class="seguimiento-historial__lista"
+            ></ol>
+          </section>
+        </div>
+      </section>
+
+      <footer class="site-footer seguimiento-footer">
+        <div class="gob-footer-banner"></div>
+      </footer>
+    </div>
+
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+    <script defer src="js/supabase-config.js"></script>
+    <script defer src="js/menu-lateral.js"></script>
+    <script defer src="js/seguimiento.js"></script>
+  </body>
+</html>

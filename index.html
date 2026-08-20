@@ -10,6 +10,20 @@
     <div class="layout">
       <header id="menu_principal" class="site-header">
         <div class="header-container">
+          <!-- Control accesible del menú lateral. -->
+          <button
+            id="menu-toggle"
+            class="menu-toggle"
+            type="button"
+            aria-label="Abrir menú"
+            aria-expanded="false"
+            aria-controls="menu-lateral"
+          >
+            <span class="menu-toggle__line" aria-hidden="true"></span>
+            <span class="menu-toggle__line" aria-hidden="true"></span>
+            <span class="menu-toggle__line" aria-hidden="true"></span>
+          </button>
+
           <div class="brand-logos" aria-label="Logotipos institucionales">
             <img
               src="img/logo-gob-mx_ok.png"
@@ -18,6 +32,91 @@
             />
           </div>
         </div>
+
+        <!-- El backdrop y el panel permanecen ocultos hasta abrir el menú. -->
+        <div
+          id="menu-lateral-backdrop"
+          class="menu-lateral-backdrop offcanvas-backdrop"
+          aria-hidden="true"
+          hidden
+        ></div>
+
+        <aside
+          id="menu-lateral"
+          class="menu-lateral offcanvas"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menú principal"
+          aria-hidden="true"
+          tabindex="-1"
+        >
+          <!-- Navegación semántica inspirada en el menú institucional de referencia. -->
+          <nav class="menu-lateral__nav" aria-label="Navegación principal">
+            <ul class="menu-lateral__items menu-items">
+              <li>
+                <a
+                  class="menu-lateral__item menu-item"
+                  href="index.html"
+                  aria-current="page"
+                >
+                  <span class="menu-lateral__item-content menu-item__content">
+                    <svg
+                      class="menu-lateral__icon menu-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="m3 11 9-8 9 8" />
+                      <path d="M5 10v10h14V10" />
+                      <path d="M9 20v-6h6v6" />
+                    </svg>
+                    <span>Inicio</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="menu-lateral__item menu-item"
+                  href="captura-seguimiento.html"
+                >
+                  <span class="menu-lateral__item-content menu-item__content">
+                    <svg
+                      class="menu-lateral__icon menu-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="M9 5h6m-5-2h4a1 1 0 0 1 1 1v2H9V4a1 1 0 0 1 1-1Z" />
+                      <path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+                      <path d="M8 11h8M8 15h8M8 19h5" />
+                    </svg>
+                    <span>Seguimiento de acciones</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <button
+                  id="cerrar-sesion"
+                  class="menu-lateral__item menu-item"
+                  type="button"
+                >
+                  <span class="menu-lateral__item-content menu-item__content">
+                    <svg
+                      class="menu-lateral__icon menu-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="M10 5H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h5" />
+                      <path d="M14 8l4 4-4 4M18 12H8" />
+                    </svg>
+                    <span>Cerrar Sesión</span>
+                  </span>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </aside>
       </header>
 
       <main class="bloque-global">
@@ -55,5 +154,6 @@
         <div class="gob-footer-banner"></div>
       </footer>
     </div>
+    <script src="js/menu-lateral.js"></script>
   </body>
 </html>
