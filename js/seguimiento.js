@@ -163,6 +163,26 @@
     }, 6000);
   }
 
+  async function mostrarConfirmacionActualizacion() {
+    if (typeof window.Swal?.fire !== "function") {
+      mostrarAviso("Actualización registrada correctamente.");
+      return;
+    }
+
+    await window.Swal.fire({
+      icon: "success",
+      title: "Actualización registrada correctamente",
+      confirmButtonText: "Aceptar",
+      buttonsStyling: false,
+      heightAuto: false,
+      customClass: {
+        popup: "seguimiento-alerta",
+        title: "seguimiento-alerta__titulo",
+        confirmButton: "seguimiento-alerta__boton",
+      },
+    });
+  }
+
   function mostrarBloqueo(titulo, mensaje) {
     elementos.bloqueoTitulo.textContent = titulo;
     elementos.bloqueoMensaje.textContent = mensaje;
@@ -729,7 +749,7 @@
         throw error;
       }
       if (solicitud !== estado.solicitudHistorial) {
-        return;
+        return false;
       }
       const lista = actualizaciones ?? [];
       if (!lista.length) {
@@ -737,7 +757,7 @@
           elementos.historialEstado,
           "Todavía no hay actualizaciones para esta acción.",
         );
-        return;
+        return false;
       }
       const idsActualizacion = lista.map((item) => item.id_act);
       const idsUsuario = [...new Set(lista.map((item) => item.usuario_id))];
@@ -764,7 +784,7 @@
         );
       }
       if (solicitud !== estado.solicitudHistorial) {
-        return;
+        return false;
       }
       cambiarEstadoPanel(elementos.historialEstado, "", false);
       renderizarHistorial(
@@ -773,15 +793,17 @@
         respuestaPerfiles.data ?? [],
       );
       await marcarAccionRevisada(accionId);
+      return true;
     } catch (error) {
       if (solicitud !== estado.solicitudHistorial) {
-        return;
+        return false;
       }
       registrarError("No fue posible consultar el historial.", error);
       cambiarEstadoPanel(
         elementos.historialEstado,
         "No fue posible consultar el historial de esta acción.",
       );
+      return false;
     }
   }
 
@@ -945,8 +967,10 @@
         await subirEvidencia(actualizacion.id_act, archivo);
       }
       restablecerFormularioActualizacion();
-      mostrarAviso("La actualización se guardó correctamente.");
-      await cargarHistorial(accion.id_accion);
+      const historialActualizado = await cargarHistorial(accion.id_accion);
+      if (historialActualizado) {
+        await mostrarConfirmacionActualizacion();
+      }
     } catch (error) {
       registrarError("No fue posible guardar la actualización.", error);
       mostrarMensajeActualizacion(
@@ -1451,7 +1475,7 @@
       }
     });
 
-    // El menú lateral y el header utilizan exactamente el mismo cierre real.
+    // El menú lateral y el header utilizan exactamente el mismo cierre.
     window.cerrarSesionAplicacion = cerrarSesionCompartido;
 
     if (!cliente) {

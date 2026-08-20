@@ -9,7 +9,6 @@
     menu?.querySelectorAll("a.menu-lateral__item") ?? [];
   const logoutButton = document.getElementById("cerrar-sesion");
 
-  // Integración pendiente: asignar la ruta real de acceso cuando exista.
   const ACCESS_PAGE_URL = "";
 
   if (!toggleButton || !menu || !backdrop) {
@@ -21,7 +20,10 @@
   const setMenuState = (open, restoreFocus = true) => {
     menuIsOpen = open;
     toggleButton.setAttribute("aria-expanded", String(open));
-    toggleButton.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
+    toggleButton.setAttribute(
+      "aria-label",
+      open ? "Cerrar menú" : "Abrir menú",
+    );
     menu.setAttribute("aria-hidden", String(!open));
 
     if (open) {
