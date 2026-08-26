@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Solicitud de acceso</title>
+    <link rel="stylesheet" href="css/estilos.css" />
+    <link rel="stylesheet" href="css/solicitud-acceso.css" />
+  </head>
+  <body class="solicitud-page">
+    <div class="layout solicitud-layout">
+      <header id="menu_principal" class="site-header">
+        <div class="header-container solicitud-header">
+          <button
+            id="menu-toggle"
+            class="menu-toggle"
+            type="button"
+            aria-label="Abrir menú"
+            aria-expanded="false"
+            aria-controls="menu-lateral"
+          >
+            <span class="menu-toggle__line" aria-hidden="true"></span>
+            <span class="menu-toggle__line" aria-hidden="true"></span>
+            <span class="menu-toggle__line" aria-hidden="true"></span>
+          </button>
+
+          <div class="brand-logos" aria-label="Logotipos institucionales">
+            <img
+              src="img/logo-gob-mx_ok.png"
+              class="logo-gob"
+              alt="Gobierno de México"
+            />
+          </div>
+        </div>
+
+        <div
+          id="menu-lateral-backdrop"
+          class="menu-lateral-backdrop offcanvas-backdrop"
+          aria-hidden="true"
+          hidden
+        ></div>
+
+        <aside
+          id="menu-lateral"
+          class="menu-lateral offcanvas"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menú principal"
+          aria-hidden="true"
+          tabindex="-1"
+        >
+          <nav class="menu-lateral__nav" aria-label="Navegación principal">
+            <ul class="menu-lateral__items menu-items">
+              <li>
+                <a class="menu-lateral__item menu-item" href="index.html">
+                  <span class="menu-lateral__item-content menu-item__content">
+                    <svg
+                      class="menu-lateral__icon menu-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="m3 11 9-8 9 8" />
+                      <path d="M5 10v10h14V10" />
+                      <path d="M9 20v-6h6v6" />
+                    </svg>
+                    <span>Inicio</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="menu-lateral__item menu-item"
+                  href="captura-seguimiento.html"
+                >
+                  <span class="menu-lateral__item-content menu-item__content">
+                    <svg
+                      class="menu-lateral__icon menu-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        d="M9 5h6m-5-2h4a1 1 0 0 1 1 1v2H9V4a1 1 0 0 1 1-1Z"
+                      />
+                      <path
+                        d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"
+                      />
+                      <path d="M8 11h8M8 15h8M8 19h5" />
+                    </svg>
+                    <span>Seguimiento de acciones</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="menu-lateral__item menu-item"
+                  href="solicitud-acceso.html"
+                  aria-current="page"
+                >
+                  <span class="menu-lateral__item-content menu-item__content">
+                    <svg
+                      class="menu-lateral__icon menu-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M3 21v-2a6 6 0 0 1 6-6h2" />
+                      <path d="M19 8v6M16 11h6" />
+                    </svg>
+                    <span>Solicitar acceso</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <button
+                  id="cerrar-sesion"
+                  class="menu-lateral__item menu-item"
+                  type="button"
+                >
+                  <span class="menu-lateral__item-content menu-item__content">
+                    <svg
+                      class="menu-lateral__icon menu-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="M10 5H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h5" />
+                      <path d="M14 8l4 4-4 4M18 12H8" />
+                    </svg>
+                    <span>Cerrar Sesión</span>
+                  </span>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </aside>
+      </header>
+
+      <main class="solicitud-main">
+        <section class="solicitud-presentacion" aria-labelledby="solicitud-titulo">
+          <div class="solicitud-presentacion__contenido">
+            <p class="solicitud-sobretitulo">Acceso institucional</p>
+            <h1 id="solicitud-titulo">Solicitud de acceso</h1>
+            <p class="solicitud-introduccion">
+              Completa tus datos para solicitar acceso al sistema. La
+              información será revisada por el administrador.
+            </p>
+          </div>
+
+          <div class="solicitud-tarjeta">
+            <form id="solicitud-form" novalidate>
+              <div class="solicitud-campo">
+                <label for="solicitud-nombre">Nombre completo</label>
+                <input
+                  id="solicitud-nombre"
+                  name="nombre"
+                  type="text"
+                  minlength="3"
+                  maxlength="200"
+                  autocomplete="name"
+                  required
+                />
+              </div>
+
+              <div class="solicitud-campo">
+                <label for="solicitud-email">Correo electrónico</label>
+                <input
+                  id="solicitud-email"
+                  name="email"
+                  type="email"
+                  maxlength="254"
+                  inputmode="email"
+                  autocomplete="email"
+                  required
+                />
+              </div>
+
+              <div class="solicitud-campo">
+                <label for="solicitud-dependencia">Dependencia</label>
+                <select
+                  id="solicitud-dependencia"
+                  name="dependencia_id"
+                  required
+                  disabled
+                >
+                  <option value="">Seleccione una dependencia</option>
+                </select>
+                <p
+                  id="solicitud-dependencias-estado"
+                  class="solicitud-campo__ayuda"
+                  role="status"
+                  aria-live="polite"
+                >
+                  Cargando dependencias…
+                </p>
+              </div>
+
+              <div class="solicitud-campo">
+                <label for="solicitud-cargo">Cargo o área</label>
+                <input
+                  id="solicitud-cargo"
+                  name="cargo"
+                  type="text"
+                  maxlength="150"
+                  autocomplete="organization-title"
+                />
+              </div>
+
+              <div class="solicitud-campo">
+                <div class="solicitud-campo__encabezado">
+                  <label for="solicitud-comentarios">Comentarios</label>
+                  <span
+                    id="solicitud-comentarios-contador"
+                    aria-live="polite"
+                    >0/1000</span
+                  >
+                </div>
+                <textarea
+                  id="solicitud-comentarios"
+                  name="comentarios"
+                  rows="5"
+                  maxlength="1000"
+                ></textarea>
+              </div>
+
+              <div class="solicitud-honeypot" aria-hidden="true">
+                <label for="solicitud-sitio-web">Sitio web</label>
+                <input
+                  id="solicitud-sitio-web"
+                  name="sitio_web"
+                  type="text"
+                  tabindex="-1"
+                  autocomplete="off"
+                />
+              </div>
+
+              <p
+                id="solicitud-mensaje"
+                class="solicitud-mensaje"
+                role="alert"
+                aria-live="assertive"
+                hidden
+              ></p>
+
+              <button
+                id="solicitud-enviar"
+                class="solicitud-boton solicitud-boton--primario"
+                type="submit"
+                aria-busy="false"
+                disabled
+              >
+                Enviar solicitud
+              </button>
+
+              <a
+                class="solicitud-volver"
+                href="captura-seguimiento.html"
+              >
+                Volver al inicio de sesión
+              </a>
+            </form>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer solicitud-footer">
+        <div class="gob-footer-banner"></div>
+      </footer>
+    </div>
+
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+    <script defer src="js/supabase-config.js"></script>
+    <script defer src="js/menu-lateral.js"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/sweetalert2@11"
+    ></script>
+    <script defer src="js/solicitud-acceso.js"></script>
+  </body>
+</html>

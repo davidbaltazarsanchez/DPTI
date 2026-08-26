@@ -286,6 +286,22 @@ body {
   transition: transform 0.25s ease;
 }
 
+.menu-lateral__badge {
+  min-width: 22px;
+  min-height: 22px;
+  margin-left: auto;
+  padding: 3px 6px;
+  display: inline-grid;
+  place-items: center;
+  color: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  background: #ed1c2e;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
 body.menu-lateral-open {
   overflow: hidden;
 }

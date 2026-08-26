@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Establecer contraseña</title>
+    <link rel="icon" href="img/logo-gob-mx_ok.png" />
+    <link rel="stylesheet" href="css/estilos.css" />
+    <link rel="stylesheet" href="css/establecer-contrasena.css" />
+  </head>
+  <body class="contrasena-page">
+    <div class="layout contrasena-layout">
+      <header class="site-header"><div class="header-container contrasena-header"><div class="brand-logos"><img src="img/logo-gob-mx_ok.png" class="logo-gob" alt="Gobierno de México" /></div></div></header>
+      <main class="contrasena-main">
+        <section class="contrasena-tarjeta" aria-labelledby="contrasena-titulo">
+          <div id="contrasena-verificando" class="contrasena-estado" aria-live="polite"><span class="contrasena-cargador" aria-hidden="true"></span><p>Validando enlace seguro…</p></div>
+          <div id="contrasena-invalido" class="contrasena-estado" hidden><span class="contrasena-estado__icono" aria-hidden="true">!</span><h1>El enlace es inválido o ha vencido</h1><p>Solicita al administrador un nuevo enlace.</p><a class="contrasena-boton contrasena-boton--secundario" href="index.html">Volver al inicio</a></div>
+          <div id="contrasena-formulario-contenido" hidden>
+            <p class="contrasena-sobretitulo">Acceso seguro</p><h1 id="contrasena-titulo">Establecer contraseña</h1><p>Crea una contraseña para ingresar al sistema.</p>
+            <form id="contrasena-form" novalidate>
+              <div class="contrasena-campo"><label for="contrasena-nueva">Nueva contraseña</label><div class="contrasena-control"><input id="contrasena-nueva" type="password" minlength="8" autocomplete="new-password" required /><button id="contrasena-mostrar" type="button" aria-label="Mostrar contraseñas" aria-pressed="false">Mostrar</button></div></div>
+              <div class="contrasena-campo"><label for="contrasena-confirmar">Confirmar contraseña</label><input id="contrasena-confirmar" type="password" minlength="8" autocomplete="new-password" required /></div>
+              <ul class="contrasena-reglas" aria-label="Requisitos de la contraseña"><li>Mínimo 8 caracteres.</li><li>Ambos campos deben coincidir.</li></ul>
+              <p id="contrasena-mensaje" class="contrasena-mensaje" role="alert" aria-live="assertive" hidden></p>
+              <button id="contrasena-guardar" class="contrasena-boton contrasena-boton--primario" type="submit" aria-busy="false" disabled>Guardar contraseña</button>
+            </form>
+          </div>
+        </section>
+      </main>
+      <footer class="site-footer contrasena-footer"><div class="gob-footer-banner"></div></footer>
+    </div>
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="js/supabase-config.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script defer src="js/establecer-contrasena.js"></script>
+  </body>
+</html>

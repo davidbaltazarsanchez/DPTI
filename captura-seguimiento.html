@@ -105,6 +105,51 @@
                 </a>
               </li>
               <li>
+                <a
+                  class="menu-lateral__item menu-item"
+                  href="solicitud-acceso.html"
+                >
+                  <span class="menu-lateral__item-content menu-item__content">
+                    <svg
+                      class="menu-lateral__icon menu-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M3 21v-2a6 6 0 0 1 6-6h2" />
+                      <path d="M19 8v6M16 11h6" />
+                    </svg>
+                    <span>Solicitar acceso</span>
+                  </span>
+                </a>
+              </li>
+              <li id="menu-solicitudes-admin" hidden>
+                <a
+                  class="menu-lateral__item menu-item"
+                  href="administracion-solicitudes.html"
+                >
+                  <span class="menu-lateral__item-content menu-item__content">
+                    <svg
+                      class="menu-lateral__icon menu-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="M4 5h16v14H4z" />
+                      <path d="m4 7 8 6 8-6" />
+                    </svg>
+                    <span>Solicitudes de acceso</span>
+                    <span
+                      id="menu-solicitudes-contador"
+                      class="menu-lateral__badge"
+                      aria-label="Solicitudes pendientes"
+                      hidden
+                    ></span>
+                  </span>
+                </a>
+              </li>
+              <li>
                 <button
                   id="cerrar-sesion"
                   class="menu-lateral__item menu-item"
@@ -149,7 +194,7 @@
               <span class="seguimiento-login__sello">Gobierno de México</span>
               <span>Seguimiento institucional</span>
             </div>
-            <p class="seguimiento-sobretitulo">Tablero de seguimiento</p>
+            <p class="seguimiento-sobretitulo">Sistema de seguimiento</p>
             <h1>Acciones prioritarias<br />de San Quintín</h1>
             <p class="seguimiento-login__descripcion">
               Consulta avances, registra actualizaciones y concentra evidencias
@@ -222,6 +267,12 @@
                 >
                   Ingresar
                 </button>
+                <a
+                  class="seguimiento-login__solicitud"
+                  href="solicitud-acceso.html"
+                >
+                  Solicitar acceso
+                </a>
               </form>
             </div>
           </div>
@@ -277,11 +328,37 @@
               class="seguimiento-temas"
               aria-labelledby="seguimiento-temas-titulo"
             >
-              <div class="seguimiento-seccion-titulo">
+              <div
+                class="seguimiento-seccion-titulo seguimiento-seccion-titulo--reporte"
+              >
                 <div>
                   <small>Catálogo</small>
                   <h2 id="seguimiento-temas-titulo">Temas</h2>
                 </div>
+                <!-- Reporte disponible únicamente para CENTRAL y ADMINISTRADOR. -->
+                <button
+                  id="seguimiento-descargar-reporte"
+                  class="seguimiento-descargar-reporte"
+                  type="button"
+                  aria-label="Descargar reporte de últimas actualizaciones en Excel"
+                  aria-busy="false"
+                  title="Descargar reporte en Excel"
+                  hidden
+                >
+                  <svg
+                    class="seguimiento-descargar-reporte__icono"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path d="M12 3v12" />
+                    <path d="m7 10 5 5 5-5" />
+                    <path d="M5 18v3h14v-3" />
+                  </svg>
+                  <span class="seguimiento-descargar-reporte__texto"
+                    >Excel</span
+                  >
+                </button>
               </div>
               <div
                 id="seguimiento-temas-estado"
@@ -411,7 +488,9 @@
             class="seguimiento-captura"
             aria-labelledby="seguimiento-captura-titulo"
           >
-            <div class="seguimiento-seccion-titulo seguimiento-seccion-titulo--claro">
+            <div
+              class="seguimiento-seccion-titulo seguimiento-seccion-titulo--claro"
+            >
               <div>
                 <small>Nueva entrada</small>
                 <h3 id="seguimiento-captura-titulo">Registrar actualización</h3>
@@ -422,7 +501,9 @@
               <div class="seguimiento-campo">
                 <label for="seguimiento-estatus">Estatus</label>
                 <select id="seguimiento-estatus" name="estatus" required>
-                  <option value="" selected disabled>Seleccione el Estatus</option>
+                  <option value="" selected disabled>
+                    Seleccione el Estatus
+                  </option>
                   <option value="No Iniciado">No Iniciado</option>
                   <option value="En Planeación">En Planeación</option>
                   <option value="Por Iniciar">Por Iniciar</option>
@@ -459,7 +540,10 @@
                     <span>%</span>
                   </label>
                 </div>
-                <p id="seguimiento-avance-ayuda" class="seguimiento-campo__ayuda">
+                <p
+                  id="seguimiento-avance-ayuda"
+                  class="seguimiento-campo__ayuda"
+                >
                   El estatus No Iniciado requiere 0% de avance.
                 </p>
               </fieldset>
@@ -476,7 +560,11 @@
                 ></textarea>
               </div>
 
-              <div id="seguimiento-archivo-campo" class="seguimiento-campo" hidden>
+              <div
+                id="seguimiento-archivo-campo"
+                class="seguimiento-campo"
+                hidden
+              >
                 <label for="seguimiento-archivo">Evidencia</label>
                 <input
                   id="seguimiento-archivo"
@@ -512,7 +600,9 @@
             class="seguimiento-historial"
             aria-labelledby="seguimiento-historial-titulo"
           >
-            <div class="seguimiento-seccion-titulo seguimiento-seccion-titulo--claro">
+            <div
+              class="seguimiento-seccion-titulo seguimiento-seccion-titulo--claro"
+            >
               <div>
                 <small>Bitácora</small>
                 <h3 id="seguimiento-historial-titulo">Historial</h3>
@@ -544,9 +634,11 @@
     ></script>
     <script defer src="js/supabase-config.js"></script>
     <script defer src="js/menu-lateral.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- ExcelJS genera el reporte con estilos, sin requerir backend adicional. -->
     <script
       defer
-      src="https://cdn.jsdelivr.net/npm/sweetalert2@11"
+      src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"
     ></script>
     <script defer src="js/seguimiento.js"></script>
   </body>

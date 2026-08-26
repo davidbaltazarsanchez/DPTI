@@ -26,6 +26,9 @@
     headerSalir: porId("seguimiento-cerrar-sesion"),
     menuSalir: porId("cerrar-sesion"),
     contextoRol: porId("seguimiento-contexto-rol"),
+    descargarReporte: porId("seguimiento-descargar-reporte"),
+    menuSolicitudesAdmin: porId("menu-solicitudes-admin"),
+    menuSolicitudesContador: porId("menu-solicitudes-contador"),
     temasEstado: porId("seguimiento-temas-estado"),
     temasLista: porId("seguimiento-temas-lista"),
     subtemasEstado: porId("seguimiento-subtemas-estado"),
@@ -63,6 +66,7 @@
   };
 
   const BUCKET_EVIDENCIAS = "evidencias-seguimiento";
+  const DURACION_ENLACE_REPORTE = 24 * 60 * 60;
   const TAMANO_MAXIMO_ARCHIVO = 2.5 * 1024 * 1024;
   const EXTENSIONES_PERMITIDAS = new Set([
     "pdf",
@@ -163,6 +167,12 @@
     }, 6000);
   }
 
+  function limpiarAviso() {
+    window.clearTimeout(avisoTemporizador);
+    elementos.aviso.textContent = "";
+    elementos.aviso.hidden = true;
+  }
+
   async function mostrarConfirmacionActualizacion() {
     if (typeof window.Swal?.fire !== "function") {
       mostrarAviso("Actualización registrada correctamente.");
@@ -227,6 +237,10 @@
     elementos.headerNombre.textContent = "";
     elementos.headerRol.textContent = "";
     elementos.contextoRol.textContent = "";
+    elementos.descargarReporte.hidden = true;
+    elementos.menuSolicitudesAdmin.hidden = true;
+    elementos.menuSolicitudesContador.hidden = true;
+    elementos.menuSolicitudesContador.textContent = "";
     elementos.headerUsuario.hidden = true;
     document.body.classList.remove("seguimiento-autenticado");
   }
@@ -236,8 +250,35 @@
     elementos.headerNombre.textContent = perfil.nombre;
     elementos.headerRol.textContent = rol;
     elementos.contextoRol.textContent = rol;
+    elementos.descargarReporte.hidden = ![
+      "CENTRAL",
+      "ADMINISTRADOR",
+    ].includes(perfil.tipo_usuario);
+    elementos.menuSolicitudesAdmin.hidden =
+      perfil.tipo_usuario !== "ADMINISTRADOR";
     elementos.headerUsuario.hidden = false;
     document.body.classList.add("seguimiento-autenticado");
+  }
+
+  async function cargarContadorSolicitudesAdmin() {
+    if (estado.perfil?.tipo_usuario !== "ADMINISTRADOR") {
+      return;
+    }
+    try {
+      const { count, error } = await cliente
+        .from("solicitudes_acceso")
+        .select("id_solicitud", { count: "exact", head: true })
+        .eq("estado", "PENDIENTE");
+      if (error) {
+        throw error;
+      }
+      const total = Number(count ?? 0);
+      elementos.menuSolicitudesContador.textContent = String(total);
+      elementos.menuSolicitudesContador.hidden = total === 0;
+    } catch (error) {
+      registrarError("No fue posible consultar las solicitudes pendientes.", error);
+      elementos.menuSolicitudesContador.hidden = true;
+    }
   }
 
   function actualizarBotonesSeleccionados(selector, idSeleccionado) {
@@ -639,6 +680,266 @@
     }).format(new Date(fecha));
   }
 
+  function textoReporte(valor) {
+    if (Array.isArray(valor)) {
+      return valor.filter(Boolean).join(", ");
+    }
+    return valor == null ? "" : String(valor);
+  }
+
+  function obtenerFechaReporte(fecha) {
+    if (!fecha) {
+      return "";
+    }
+    const fechaValida = new Date(fecha);
+    if (Number.isNaN(fechaValida.getTime())) {
+      return "";
+    }
+    return fechaValida;
+  }
+
+  async function descargarReporteExcel() {
+    if (elementos.descargarReporte.disabled) {
+      return;
+    }
+
+    const textoBoton = elementos.descargarReporte.querySelector(
+      ".seguimiento-descargar-reporte__texto",
+    );
+    const textoOriginal = textoBoton.textContent;
+    elementos.descargarReporte.disabled = true;
+    elementos.descargarReporte.setAttribute("aria-busy", "true");
+    textoBoton.textContent = "Preparando…";
+    limpiarAviso();
+
+    try {
+      if (!window.ExcelJS) {
+        throw new Error(
+          "No fue posible preparar la herramienta para generar Excel.",
+        );
+      }
+
+      const { data, error } = await cliente.rpc(
+        "obtener_reporte_ultima_actualizacion",
+      );
+      if (error) {
+        throw error;
+      }
+
+      const registros = [...(data ?? [])].sort((registroA, registroB) => {
+        const campos = ["tema", "subtema", "accion"];
+        for (const campo of campos) {
+          const comparacion = textoReporte(registroA[campo]).localeCompare(
+            textoReporte(registroB[campo]),
+            "es",
+            { sensitivity: "base", numeric: true },
+          );
+          if (comparacion !== 0) {
+            return comparacion;
+          }
+        }
+        return 0;
+      });
+
+      if (!registros.length) {
+        mostrarAviso("No hay información disponible para generar el reporte.");
+        return;
+      }
+
+      const rutasStorage = [
+        ...new Set(
+          registros
+            .map((registro) => registro.ruta_storage)
+            .filter(Boolean),
+        ),
+      ];
+      const urlsPorRuta = new Map();
+
+      if (rutasStorage.length) {
+        const { data: enlacesFirmados, error: errorEnlaces } =
+          await cliente.storage
+            .from(BUCKET_EVIDENCIAS)
+            .createSignedUrls(rutasStorage, DURACION_ENLACE_REPORTE);
+
+        if (errorEnlaces) {
+          registrarError(
+            "No fue posible generar algunos enlaces del reporte.",
+            new Error(errorEnlaces.message ?? "Error al firmar evidencias."),
+          );
+        }
+
+        (enlacesFirmados ?? []).forEach((enlace) => {
+          if (enlace.path && enlace.signedUrl && !enlace.error) {
+            urlsPorRuta.set(enlace.path, enlace.signedUrl);
+            return;
+          }
+          if (enlace.error) {
+            registrarError(
+              "No fue posible generar un enlace individual del reporte.",
+              new Error(enlace.error.message ?? "Evidencia no disponible."),
+            );
+          }
+        });
+      }
+
+      const filas = registros.map((registro) => {
+        const avance =
+          registro.porcentaje_avance == null
+            ? ""
+            : Number(registro.porcentaje_avance);
+        return {
+          tema: textoReporte(registro.tema),
+          subtema: textoReporte(registro.subtema),
+          accion: textoReporte(registro.accion),
+          dependencias: textoReporte(registro.dependencias),
+          estatus: textoReporte(registro.estatus),
+          avance: Number.isFinite(avance) ? avance : "",
+          comentarios: textoReporte(registro.comentarios),
+          fechaActualizacion: obtenerFechaReporte(
+            registro.fecha_actualizacion,
+          ),
+          archivo: textoReporte(registro.nombre_archivo),
+          evidencia: "",
+        };
+      });
+
+      const libro = new window.ExcelJS.Workbook();
+      libro.creator = "Sistema de Seguimiento";
+      libro.created = new Date();
+
+      const hoja = libro.addWorksheet("Últimas actualizaciones", {
+        views: [
+          {
+            state: "frozen",
+            ySplit: 1,
+          },
+        ],
+      });
+
+      hoja.columns = [
+        { header: "Tema", key: "tema", width: 25 },
+        { header: "Subtema", key: "subtema", width: 35 },
+        { header: "Acción", key: "accion", width: 55 },
+        { header: "Dependencias", key: "dependencias", width: 40 },
+        { header: "Estatus", key: "estatus", width: 20 },
+        { header: "Avance (%)", key: "avance", width: 14 },
+        { header: "Comentarios", key: "comentarios", width: 60 },
+        {
+          header: "Fecha de actualización",
+          key: "fechaActualizacion",
+          width: 23,
+        },
+        { header: "Archivo", key: "archivo", width: 35 },
+        {
+          header: "Evidencia (enlace válido por 24 horas)",
+          key: "evidencia",
+          width: 35,
+        },
+      ];
+
+      const filaEncabezado = hoja.getRow(1);
+      filaEncabezado.eachCell((celda) => {
+        celda.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: {
+            argb: "FF008C8C",
+          },
+        };
+        celda.font = {
+          ...celda.font,
+          bold: true,
+        };
+        celda.alignment = {
+          horizontal: "center",
+          vertical: "middle",
+          wrapText: true,
+        };
+      });
+      filaEncabezado.height = 32;
+
+      filas.forEach((fila, indice) => {
+        const filaExcel = hoja.addRow(fila);
+        const urlFirmada =
+          urlsPorRuta.get(registros[indice].ruta_storage) ?? "";
+        const celdaEvidencia = filaExcel.getCell("evidencia");
+        if (urlFirmada) {
+          celdaEvidencia.value = {
+            text: "Abrir evidencia",
+            hyperlink: urlFirmada,
+            tooltip: "Abrir evidencia",
+          };
+          celdaEvidencia.font = {
+            color: {
+              argb: "FF0563C1",
+            },
+            underline: true,
+          };
+        } else {
+          celdaEvidencia.value = "";
+        }
+      });
+
+      hoja.eachRow((fila, numeroFila) => {
+        if (numeroFila === 1) {
+          return;
+        }
+        fila.alignment = {
+          vertical: "top",
+          wrapText: true,
+        };
+        const celdaFecha = fila.getCell("fechaActualizacion");
+        if (celdaFecha.value instanceof Date) {
+          celdaFecha.numFmt = "dd/mm/yyyy hh:mm";
+        } else {
+          celdaFecha.value = "";
+        }
+      });
+
+      hoja.autoFilter = {
+        from: {
+          row: 1,
+          column: 1,
+        },
+        to: {
+          row: 1,
+          column: hoja.columnCount,
+        },
+      };
+
+      const hoy = new Date();
+      const fechaArchivo = [
+        hoy.getFullYear(),
+        String(hoy.getMonth() + 1).padStart(2, "0"),
+        String(hoy.getDate()).padStart(2, "0"),
+      ].join("-");
+      const nombreArchivo = `seguimiento_ultima_actualizacion_${fechaArchivo}.xlsx`;
+      const buffer = await libro.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const urlTemporal = URL.createObjectURL(blob);
+      const enlace = document.createElement("a");
+      enlace.href = urlTemporal;
+      enlace.download = nombreArchivo;
+      enlace.rel = "noopener";
+      document.body.append(enlace);
+      enlace.click();
+      enlace.remove();
+      window.setTimeout(() => {
+        URL.revokeObjectURL(urlTemporal);
+      }, 0);
+      mostrarAviso("Reporte generado correctamente.");
+    } catch (error) {
+      registrarError("No fue posible generar el reporte.", error);
+      mostrarAviso("No fue posible generar el reporte. Intenta nuevamente.");
+    } finally {
+      elementos.descargarReporte.disabled = false;
+      elementos.descargarReporte.setAttribute("aria-busy", "false");
+      textoBoton.textContent = textoOriginal;
+    }
+  }
+
   async function descargarEvidencia(archivo, boton) {
     boton.disabled = true;
     boton.textContent = "Preparando…";
@@ -849,6 +1150,10 @@
     if (elementos.detalleModal.hidden) {
       return;
     }
+    if (estado.guardandoActualizacion) {
+      mostrarAviso("Espera a que termine el guardado de la actualización.");
+      return;
+    }
     estado.solicitudHistorial += 1;
     elementos.detalleModal.hidden = true;
     elementos.detalleBackdrop.hidden = true;
@@ -942,6 +1247,11 @@
     }
 
     estado.guardandoActualizacion = true;
+
+    // Apagamos el botón de cerrar y removemos el indicador de carga.
+    elementos.detalleCerrar.disabled = true;
+    elementos.detalleCerrar.setAttribute("aria-busy", "true");
+
     elementos.guardarActualizacion.disabled = true;
     elementos.guardarActualizacion.textContent = "Guardando…";
     mostrarMensajeActualizacion();
@@ -983,6 +1293,10 @@
       }
     } finally {
       estado.guardandoActualizacion = false;
+      // Prendemos el botón de cerrar y removemos el indicador de carga.
+      elementos.detalleCerrar.disabled = false;
+      elementos.detalleCerrar.removeAttribute("aria-busy");
+
       elementos.guardarActualizacion.textContent = "Guardar actualización";
       actualizarEstadoBotonGuardar();
     }
@@ -1293,6 +1607,7 @@
     estado.perfil = perfil;
     prepararIdentidad(perfil);
     mostrarVista("tablero");
+    await cargarContadorSolicitudesAdmin();
     await cargarNovedadesCentral();
     await cargarTemas();
   }
@@ -1439,12 +1754,13 @@
     elementos.bloqueoSalir.addEventListener("click", () => {
       void cerrarSesionCompartido();
     });
+    elementos.descargarReporte.addEventListener("click", () => {
+      void descargarReporteExcel();
+    });
     elementos.detalleCerrar.addEventListener("click", () => {
       cerrarDetalleAccion();
     });
-    elementos.detalleBackdrop.addEventListener("click", () => {
-      cerrarDetalleAccion();
-    });
+
     elementos.estatus.addEventListener("change", () => {
       estado.formularioEditado = true;
       configurarAvancePorEstatus();
@@ -1469,11 +1785,6 @@
       "submit",
       guardarActualizacion,
     );
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && !elementos.detalleModal.hidden) {
-        cerrarDetalleAccion();
-      }
-    });
 
     // El menú lateral y el header utilizan exactamente el mismo cierre.
     window.cerrarSesionAplicacion = cerrarSesionCompartido;

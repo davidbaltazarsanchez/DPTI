@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Administración de solicitudes</title>
+    <link rel="icon" href="img/logo-gob-mx_ok.png" />
+    <link rel="stylesheet" href="css/estilos.css" />
+    <link rel="stylesheet" href="css/administracion-solicitudes.css" />
+  </head>
+  <body class="administracion-page">
+    <div class="layout administracion-layout">
+      <header id="menu_principal" class="site-header">
+        <div class="header-container administracion-header">
+          <button id="menu-toggle" class="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu-lateral">
+            <span class="menu-toggle__line" aria-hidden="true"></span><span class="menu-toggle__line" aria-hidden="true"></span><span class="menu-toggle__line" aria-hidden="true"></span>
+          </button>
+          <div class="brand-logos" aria-label="Logotipos institucionales">
+            <img src="img/logo-gob-mx_ok.png" class="logo-gob" alt="Gobierno de México" />
+          </div>
+          <div id="administracion-identidad" class="administracion-header__identidad" hidden>
+            <strong id="administracion-usuario"></strong><span>Administrador</span>
+          </div>
+        </div>
+        <div id="menu-lateral-backdrop" class="menu-lateral-backdrop offcanvas-backdrop" aria-hidden="true" hidden></div>
+        <aside id="menu-lateral" class="menu-lateral offcanvas" role="dialog" aria-modal="true" aria-label="Menú principal" aria-hidden="true" tabindex="-1">
+          <nav class="menu-lateral__nav" aria-label="Navegación principal">
+            <ul class="menu-lateral__items menu-items">
+              <li><a class="menu-lateral__item menu-item" href="index.html"><span class="menu-lateral__item-content menu-item__content"><svg class="menu-lateral__icon menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg><span>Inicio</span></span></a></li>
+              <li><a class="menu-lateral__item menu-item" href="captura-seguimiento.html"><span class="menu-lateral__item-content menu-item__content"><svg class="menu-lateral__icon menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5h6m-5-2h4a1 1 0 0 1 1 1v2H9V4a1 1 0 0 1 1-1Z"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><path d="M8 11h8M8 15h8M8 19h5"/></svg><span>Seguimiento de acciones</span></span></a></li>
+              <li><a class="menu-lateral__item menu-item" href="solicitud-acceso.html"><span class="menu-lateral__item-content menu-item__content"><svg class="menu-lateral__icon menu-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a6 6 0 0 1 6-6h2"/><path d="M19 8v6M16 11h6"/></svg><span>Solicitar acceso</span></span></a></li>
+              <li><a class="menu-lateral__item menu-item" href="administracion-solicitudes.html" aria-current="page"><span class="menu-lateral__item-content menu-item__content"><svg class="menu-lateral__icon menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="m4 7 8 6 8-6"/></svg><span>Solicitudes de acceso</span><span id="administracion-menu-badge" class="menu-lateral__badge" aria-label="Solicitudes pendientes" hidden></span></span></a></li>
+              <li><button id="cerrar-sesion" class="menu-lateral__item menu-item" type="button"><span class="menu-lateral__item-content menu-item__content"><svg class="menu-lateral__icon menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h5"/><path d="M14 8l4 4-4 4M18 12H8"/></svg><span>Cerrar Sesión</span></span></button></li>
+            </ul>
+          </nav>
+        </aside>
+      </header>
+
+      <main class="administracion-main">
+        <section id="administracion-verificando" class="administracion-estado administracion-estado--principal" aria-live="polite"><span class="administracion-cargador" aria-hidden="true"></span><p>Validando acceso administrativo…</p></section>
+        <section id="administracion-contenido" class="administracion-contenido" hidden>
+          <header class="administracion-titulo"><div><p>Administración</p><h1>Solicitudes de acceso</h1></div><button id="administracion-recargar" class="administracion-boton administracion-boton--secundario" type="button">Actualizar</button></header>
+          <div class="administracion-herramientas">
+            <div id="administracion-filtros" class="administracion-filtros" role="tablist" aria-label="Filtrar solicitudes">
+              <button type="button" role="tab" data-estado="PENDIENTE" aria-selected="true">Pendientes</button>
+              <button type="button" role="tab" data-estado="TODAS" aria-selected="false">Todas</button>
+              <button type="button" role="tab" data-estado="APROBADA" aria-selected="false">Aprobadas</button>
+              <button type="button" role="tab" data-estado="RECHAZADA" aria-selected="false">Rechazadas</button>
+              <button type="button" role="tab" data-estado="ERROR" aria-selected="false">Con error</button>
+            </div>
+            <label class="administracion-busqueda"><span>Buscar</span><input id="administracion-buscar" type="search" placeholder="Nombre, correo o dependencia" autocomplete="off" /></label>
+          </div>
+          <div id="administracion-listado-estado" class="administracion-estado" aria-live="polite">Consultando solicitudes…</div>
+          <div id="administracion-tabla-contenedor" class="administracion-tabla-contenedor" hidden>
+            <table class="administracion-tabla"><thead><tr><th>Nombre</th><th>Correo</th><th>Dependencia</th><th>Cargo</th><th>Solicitud</th><th>Estado</th><th>Revisión</th><th>Invitación</th><th>Último enlace</th><th>Activación</th><th>Enlaces</th><th><span class="visually-hidden">Acciones</span></th></tr></thead><tbody id="administracion-tabla-cuerpo"></tbody></table>
+          </div>
+        </section>
+      </main>
+
+      <div id="administracion-modal-backdrop" class="administracion-modal-backdrop" hidden></div>
+      <section id="administracion-modal" class="administracion-modal" role="dialog" aria-modal="true" aria-labelledby="administracion-modal-titulo" tabindex="-1" hidden>
+        <header><div><p>Detalle de solicitud</p><h2 id="administracion-modal-titulo"></h2></div><button id="administracion-modal-cerrar" type="button">Cerrar</button></header>
+        <div class="administracion-modal__contenido"><dl id="administracion-detalle" class="administracion-detalle"></dl><div id="administracion-acciones" class="administracion-acciones"></div></div>
+      </section>
+
+      <div id="administracion-enlace-backdrop" class="administracion-modal-backdrop" hidden></div>
+      <section id="administracion-enlace-modal" class="administracion-modal administracion-modal--enlace" role="dialog" aria-modal="true" aria-labelledby="administracion-enlace-titulo" tabindex="-1" hidden>
+        <header><div><p>Invitación</p><h2 id="administracion-enlace-titulo">Enlace generado correctamente</h2></div></header>
+        <div class="administracion-modal__contenido">
+          <label class="administracion-enlace"><span>Enlace temporal</span><input id="administracion-enlace" type="text" readonly /></label>
+          <p>Este enlace vence en 24 horas.</p>
+          <p class="administracion-advertencia">No abras este enlace en el navegador donde tienes iniciada la sesión de administrador, porque la sesión podría cambiar al usuario invitado.</p>
+          <div class="administracion-acciones"><button id="administracion-copiar" class="administracion-boton administracion-boton--secundario" type="button">Copiar enlace</button><button id="administracion-marcar-enviada" class="administracion-boton administracion-boton--primario" type="button">Marcar como enviado</button><button id="administracion-enlace-cerrar" class="administracion-boton administracion-boton--secundario" type="button">Cerrar</button></div>
+        </div>
+      </section>
+
+      <footer class="site-footer administracion-footer"><div class="gob-footer-banner"></div></footer>
+    </div>
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="js/supabase-config.js"></script>
+    <script defer src="js/menu-lateral.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script defer src="js/administracion-solicitudes.js"></script>
+  </body>
+</html>
