@@ -24,6 +24,22 @@
   function registrarError(contexto, error) {
     console.error(`[Administración] ${contexto}`, { codigo: error?.code ?? "desconocido" });
   }
+  async function registrarErrorFuncion(contexto, error, data) {
+    let respuesta = data && typeof data === "object" ? data : null;
+    const codigoHttp = Number(error?.context?.status) || null;
+    if (!respuesta && typeof error?.context?.clone === "function") {
+      try {
+        respuesta = await error.context.clone().json();
+      } catch {
+        respuesta = null;
+      }
+    }
+    console.error(`[Administración] ${contexto}`, {
+      codigoHttp,
+      mensaje: typeof respuesta?.mensaje === "string" ? respuesta.mensaje : error?.message ?? "Respuesta no disponible",
+      codigo: typeof respuesta?.codigo === "string" ? respuesta.codigo : error?.code ?? "desconocido",
+    });
+  }
   function texto(valor) { return valor == null || valor === "" ? "—" : String(valor); }
   function fecha(valor) {
     if (!valor) return "—";
@@ -206,10 +222,27 @@
     await marcarEventoEnviado(idEvento, boton, cerrarModalEnlace);
   }
   async function marcarEventoEnviado(idEvento, boton = null, cerrarModalEnlace = false) {
+    const idEventoNumerico = Number(idEvento);
+    if (!Number.isInteger(idEventoNumerico) || idEventoNumerico <= 0) {
+      registrarError("Identificador de evento inválido.", { code: "EVENTO_INVALIDO" });
+      await alertaError("No fue posible identificar el evento que deseas marcar.");
+      return;
+    }
     establecerOperacion(true); if (boton) boton.disabled = true;
     try {
-      const { data, error } = await cliente.functions.invoke("resolver-solicitud-acceso", { body: { accion: "MARCAR_ENLACE_ENVIADO", id_evento: Number(idEvento) } });
-      if (error || data?.ok !== true || !data.evento) throw error ?? new Error("Respuesta no válida.");
+      const { data, error } = await cliente.functions.invoke(
+        "resolver-solicitud-acceso",
+        {
+          body: {
+            accion: "MARCAR_ENLACE_ENVIADO",
+            id_evento: idEventoNumerico,
+          },
+        },
+      );
+      if (error || data?.ok !== true || !data.evento) {
+        await registrarErrorFuncion("La función rechazó el registro del envío.", error, data);
+        throw error ?? new Error("Respuesta no válida.");
+      }
       actualizarEventoLocal(data.evento); establecerOperacion(false); if (cerrarModalEnlace) cerrarEnlace();
       if (typeof window.Swal?.fire === "function") await window.Swal.fire({ icon: "success", title: "Envío registrado", text: "Se registró correctamente que el enlace fue enviado.", confirmButtonText: "Aceptar", heightAuto: false });
     } catch (error) { registrarError("No fue posible registrar el envío.", error); await alertaError("No fue posible registrar el envío. Intenta nuevamente."); }

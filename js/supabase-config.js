@@ -5,6 +5,17 @@
   const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_EcJiWFS9fTAdLzwRYH9-gg_tkhgZzhP";
 
+  // Configuración pública reutilizable. Nunca contiene claves secretas.
+  window.supabasePublicConfig = Object.freeze({
+    url: SUPABASE_URL,
+    publishableKey: SUPABASE_PUBLISHABLE_KEY,
+  });
+
+  // Los enlaces de invitación/recuperación crean su propio cliente temporal.
+  if (document.documentElement.dataset.supabaseClient === "isolated") {
+    return;
+  }
+
   if (window.supabaseClient) {
     return;
   }

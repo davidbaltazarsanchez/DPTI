@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cambiar mi contraseña</title>
+    <link rel="icon" href="img/logo-gob-mx_ok.png" />
+    <link rel="stylesheet" href="css/estilos.css" />
+    <link rel="stylesheet" href="css/cambiar-contrasena.css" />
+  </head>
+  <body class="cambiar-contrasena-page">
+    <div class="layout cambiar-contrasena-layout">
+      <header id="menu_principal" class="site-header">
+        <div class="header-container cambiar-contrasena-header">
+          <button id="menu-toggle" class="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu-lateral">
+            <span class="menu-toggle__line" aria-hidden="true"></span><span class="menu-toggle__line" aria-hidden="true"></span><span class="menu-toggle__line" aria-hidden="true"></span>
+          </button>
+          <div class="brand-logos" aria-label="Logotipos institucionales"><img src="img/logo-gob-mx_ok.png" class="logo-gob" alt="Gobierno de México" /></div>
+          <div id="cambiar-identidad-header" class="cambiar-contrasena-header__identidad" hidden><strong id="cambiar-nombre-header"></strong><span id="cambiar-rol-header"></span></div>
+        </div>
+        <div id="menu-lateral-backdrop" class="menu-lateral-backdrop offcanvas-backdrop" aria-hidden="true" hidden></div>
+        <aside id="menu-lateral" class="menu-lateral offcanvas" role="dialog" aria-modal="true" aria-label="Menú principal" aria-hidden="true" tabindex="-1">
+          <nav class="menu-lateral__nav" aria-label="Navegación principal">
+            <ul class="menu-lateral__items menu-items">
+              <li><a class="menu-lateral__item menu-item" href="index.html"><span class="menu-lateral__item-content menu-item__content"><svg class="menu-lateral__icon menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg><span>Inicio</span></span></a></li>
+              <li><a class="menu-lateral__item menu-item" href="captura-seguimiento.html"><span class="menu-lateral__item-content menu-item__content"><svg class="menu-lateral__icon menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5h6m-5-2h4a1 1 0 0 1 1 1v2H9V4a1 1 0 0 1 1-1Z"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><path d="M8 11h8M8 15h8M8 19h5"/></svg><span>Seguimiento de acciones</span></span></a></li>
+              <li id="cambiar-menu-administracion" hidden><a class="menu-lateral__item menu-item" href="administracion-solicitudes.html"><span class="menu-lateral__item-content menu-item__content"><svg class="menu-lateral__icon menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="m4 7 8 6 8-6"/></svg><span>Solicitudes de acceso</span></span></a></li>
+              <li><a class="menu-lateral__item menu-item" href="cambiar-contrasena.html" aria-current="page"><span class="menu-lateral__item-content menu-item__content"><svg class="menu-lateral__icon menu-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v2"/></svg><span>Cambiar mi contraseña</span></span></a></li>
+              <li><button id="cerrar-sesion" class="menu-lateral__item menu-item" type="button"><span class="menu-lateral__item-content menu-item__content"><svg class="menu-lateral__icon menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h5"/><path d="M14 8l4 4-4 4M18 12H8"/></svg><span>Cerrar Sesión</span></span></button></li>
+            </ul>
+          </nav>
+        </aside>
+      </header>
+
+      <main class="cambiar-contrasena-main">
+        <section id="cambiar-verificando" class="cambiar-contrasena-estado" aria-live="polite"><span class="cambiar-contrasena-cargador" aria-hidden="true"></span><p>Validando tu sesión…</p></section>
+        <section id="cambiar-contenido" class="cambiar-contrasena-tarjeta" aria-labelledby="cambiar-titulo" hidden>
+          <p class="cambiar-contrasena-sobretitulo">Seguridad de la cuenta</p>
+          <h1 id="cambiar-titulo">Cambiar mi contraseña</h1>
+          <p class="cambiar-contrasena-destinatario">Cambiarás la contraseña de: <strong id="cambiar-correo"></strong></p>
+          <form id="cambiar-form" novalidate>
+            <div class="cambiar-contrasena-campo"><label for="cambiar-actual">Contraseña actual</label><div class="cambiar-contrasena-control"><input id="cambiar-actual" type="password" autocomplete="current-password" required disabled /><button class="cambiar-contrasena-mostrar" type="button" data-target="cambiar-actual" aria-label="Mostrar contraseña actual" aria-pressed="false" disabled>Mostrar</button></div></div>
+            <div class="cambiar-contrasena-campo"><label for="cambiar-nueva">Nueva contraseña</label><div class="cambiar-contrasena-control"><input id="cambiar-nueva" type="password" minlength="8" autocomplete="new-password" required disabled /><button class="cambiar-contrasena-mostrar" type="button" data-target="cambiar-nueva" aria-label="Mostrar nueva contraseña" aria-pressed="false" disabled>Mostrar</button></div></div>
+            <div class="cambiar-contrasena-campo"><label for="cambiar-confirmar">Confirmar nueva contraseña</label><div class="cambiar-contrasena-control"><input id="cambiar-confirmar" type="password" minlength="8" autocomplete="new-password" required disabled /><button class="cambiar-contrasena-mostrar" type="button" data-target="cambiar-confirmar" aria-label="Mostrar confirmación de contraseña" aria-pressed="false" disabled>Mostrar</button></div></div>
+            <ul class="cambiar-contrasena-reglas" aria-label="Requisitos de la contraseña"><li>La contraseña actual es obligatoria.</li><li>La nueva contraseña debe tener al menos 8 caracteres.</li><li>La confirmación debe coincidir.</li><li>La nueva contraseña debe ser diferente de la actual.</li></ul>
+            <p id="cambiar-mensaje" class="cambiar-contrasena-mensaje" role="alert" aria-live="assertive" hidden></p>
+            <div class="cambiar-contrasena-acciones"><button id="cambiar-guardar" class="cambiar-contrasena-boton cambiar-contrasena-boton--primario" type="submit" aria-busy="false" disabled>Cambiar contraseña</button><button id="cambiar-cancelar" class="cambiar-contrasena-boton cambiar-contrasena-boton--secundario" type="button" disabled>Cancelar</button></div>
+          </form>
+        </section>
+      </main>
+      <footer class="site-footer cambiar-contrasena-footer"><div class="gob-footer-banner"></div></footer>
+    </div>
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="js/supabase-config.js"></script>
+    <script defer src="js/menu-lateral.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script defer src="js/cambiar-contrasena.js"></script>
+  </body>
+</html>

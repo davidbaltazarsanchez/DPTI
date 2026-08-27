@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-supabase-client="isolated">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -18,8 +18,8 @@
           <div id="contrasena-formulario-contenido" hidden>
             <p class="contrasena-sobretitulo">Acceso seguro</p><h1 id="contrasena-titulo">Establecer contraseña</h1><p>Crea una contraseña para ingresar al sistema.</p>
             <form id="contrasena-form" novalidate>
-              <div class="contrasena-campo"><label for="contrasena-nueva">Nueva contraseña</label><div class="contrasena-control"><input id="contrasena-nueva" type="password" minlength="8" autocomplete="new-password" required /><button id="contrasena-mostrar" type="button" aria-label="Mostrar contraseñas" aria-pressed="false">Mostrar</button></div></div>
-              <div class="contrasena-campo"><label for="contrasena-confirmar">Confirmar contraseña</label><input id="contrasena-confirmar" type="password" minlength="8" autocomplete="new-password" required /></div>
+              <div class="contrasena-campo"><label for="contrasena-nueva">Nueva contraseña</label><div class="contrasena-control"><input id="contrasena-nueva" type="password" minlength="8" autocomplete="new-password" required disabled /><button id="contrasena-mostrar" type="button" aria-label="Mostrar contraseñas" aria-pressed="false" disabled>Mostrar</button></div></div>
+              <div class="contrasena-campo"><label for="contrasena-confirmar">Confirmar contraseña</label><input id="contrasena-confirmar" type="password" minlength="8" autocomplete="new-password" required disabled /></div>
               <ul class="contrasena-reglas" aria-label="Requisitos de la contraseña"><li>Mínimo 8 caracteres.</li><li>Ambos campos deben coincidir.</li></ul>
               <p id="contrasena-mensaje" class="contrasena-mensaje" role="alert" aria-live="assertive" hidden></p>
               <button id="contrasena-guardar" class="contrasena-boton contrasena-boton--primario" type="submit" aria-busy="false" disabled>Guardar contraseña</button>
