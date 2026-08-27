@@ -17,6 +17,11 @@
           <div id="contrasena-invalido" class="contrasena-estado" hidden><span class="contrasena-estado__icono" aria-hidden="true">!</span><h1>El enlace es inválido o ha vencido</h1><p>Solicita al administrador un nuevo enlace.</p><a class="contrasena-boton contrasena-boton--secundario" href="index.html">Volver al inicio</a></div>
           <div id="contrasena-formulario-contenido" hidden>
             <p class="contrasena-sobretitulo">Acceso seguro</p><h1 id="contrasena-titulo">Establecer contraseña</h1><p>Crea una contraseña para ingresar al sistema.</p>
+            <!-- Se muestra solamente después de validar al usuario de la sesión aislada del enlace. -->
+            <p id="establecer-destinatario" class="establecer-contrasena-destinatario" hidden>
+              Cambiarás la contraseña de:
+              <strong id="establecer-correo"></strong>
+            </p>
             <form id="contrasena-form" novalidate>
               <div class="contrasena-campo"><label for="contrasena-nueva">Nueva contraseña</label><div class="contrasena-control"><input id="contrasena-nueva" type="password" minlength="8" autocomplete="new-password" required disabled /><button id="contrasena-mostrar" type="button" aria-label="Mostrar contraseñas" aria-pressed="false" disabled>Mostrar</button></div></div>
               <div class="contrasena-campo"><label for="contrasena-confirmar">Confirmar contraseña</label><input id="contrasena-confirmar" type="password" minlength="8" autocomplete="new-password" required disabled /></div>

@@ -12,6 +12,8 @@
     mostrar: porId("contrasena-mostrar"),
     mensaje: porId("contrasena-mensaje"),
     guardar: porId("contrasena-guardar"),
+    destinatario: porId("establecer-destinatario"),
+    correo: porId("establecer-correo"),
   };
 
   const urlInicial = new URL(window.location.href);
@@ -62,6 +64,8 @@
 
   function mostrarEnlaceInvalido() {
     configurarFormulario(false);
+    elementos.correo.textContent = "";
+    elementos.destinatario.hidden = true;
     elementos.verificando.hidden = true;
     elementos.contenido.hidden = true;
     elementos.invalido.hidden = false;
@@ -239,7 +243,9 @@
         error: errorUsuario,
       } = await clienteRecuperacion.auth.getUser();
 
-      if (errorUsuario || !user) {
+      const correoUsuario = user?.email?.trim();
+
+      if (errorUsuario || !user || !correoUsuario) {
         if (errorUsuario) {
           registrarError(
             "No fue posible confirmar el usuario del enlace.",
@@ -250,6 +256,9 @@
         return;
       }
 
+      // El correo procede exclusivamente del usuario autenticado por el cliente aislado.
+      elementos.correo.textContent = correoUsuario;
+      elementos.destinatario.hidden = false;
       elementos.verificando.hidden = true;
       elementos.invalido.hidden = true;
       elementos.contenido.hidden = false;

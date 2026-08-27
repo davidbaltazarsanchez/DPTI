@@ -491,3 +491,8 @@ body.menu-lateral-open {
     transform: none;
   }
 }
+.menu-lateral__item[aria-current="page"] {
+  color: #ffffff;
+  background-color: rgba(203, 230, 225, 0.18);
+  font-weight: 700;
+}
