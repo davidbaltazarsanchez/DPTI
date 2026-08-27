@@ -80,13 +80,14 @@
 .cambiar-contrasena-control {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px; /* Separación entre el campo y Mostrar */
 }
 .cambiar-contrasena-control input {
   width: 100%;
   min-height: 46px;
   padding: 10px 12px;
   border: 1px solid #b9c3c2;
-  border-radius: 6px 0 0 6px;
+  border-radius: 6px;
   font: inherit;
 }
 .cambiar-contrasena-mostrar {
@@ -94,8 +95,7 @@
   padding: 8px 12px;
   color: var(--cambiar-verde);
   border: 1px solid #b9c3c2;
-  border-left: 0;
-  border-radius: 0 6px 6px 0;
+  border-radius: 6px;
   background: #f4f8f7;
   font: inherit;
   font-size: 0.78rem;
@@ -162,7 +162,7 @@
   animation: cambiar-girar 0.8s linear infinite;
 }
 .cambiar-contrasena-page :focus-visible {
-  outline: 3px solid rgba(188, 149, 92, 0.75);
+  outline: 3px solid #cbe6e1;
   outline-offset: 3px;
 }
 .cambiar-contrasena-page .swal2-container {
