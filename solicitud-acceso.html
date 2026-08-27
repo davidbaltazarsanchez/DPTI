@@ -60,11 +60,12 @@
                       aria-hidden="true"
                       focusable="false"
                     >
-                      <path d="m3 11 9-8 9 8" />
-                      <path d="M5 10v10h14V10" />
-                      <path d="M9 20v-6h6v6" />
+                      <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z" />
+                      <path d="M9 3v15" />
+                      <path d="M15 6v15" />
                     </svg>
-                    <span>Inicio</span>
+
+                    <span>Mapa interactivo</span>
                   </span>
                 </a>
               </li>
@@ -139,7 +140,10 @@
       </header>
 
       <main class="solicitud-main">
-        <section class="solicitud-presentacion" aria-labelledby="solicitud-titulo">
+        <section
+          class="solicitud-presentacion"
+          aria-labelledby="solicitud-titulo"
+        >
           <div class="solicitud-presentacion__contenido">
             <p class="solicitud-sobretitulo">Acceso institucional</p>
             <h1 id="solicitud-titulo">Solicitud de acceso</h1>
@@ -211,9 +215,7 @@
               <div class="solicitud-campo">
                 <div class="solicitud-campo__encabezado">
                   <label for="solicitud-comentarios">Comentarios</label>
-                  <span
-                    id="solicitud-comentarios-contador"
-                    aria-live="polite"
+                  <span id="solicitud-comentarios-contador" aria-live="polite"
                     >0/1000</span
                   >
                 </div>
@@ -254,10 +256,7 @@
                 Enviar solicitud
               </button>
 
-              <a
-                class="solicitud-volver"
-                href="captura-seguimiento.html"
-              >
+              <a class="solicitud-volver" href="captura-seguimiento.html">
                 Volver al inicio de sesión
               </a>
             </form>
@@ -276,10 +275,7 @@
     ></script>
     <script defer src="js/supabase-config.js"></script>
     <script defer src="js/menu-lateral.js"></script>
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/sweetalert2@11"
-    ></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script defer src="js/solicitud-acceso.js"></script>
   </body>
 </html>
