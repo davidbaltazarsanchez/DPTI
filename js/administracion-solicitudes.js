@@ -13,11 +13,13 @@
     backdrop: porId("administracion-modal-backdrop"), modal: porId("administracion-modal"),
     modalTitulo: porId("administracion-modal-titulo"), modalCerrar: porId("administracion-modal-cerrar"),
     detalle: porId("administracion-detalle"), acciones: porId("administracion-acciones"),
+    historial: porId("administracion-historial-lista"),
     enlaceBackdrop: porId("administracion-enlace-backdrop"), enlaceModal: porId("administracion-enlace-modal"),
     enlace: porId("administracion-enlace"), copiar: porId("administracion-copiar"),
     marcarEnviada: porId("administracion-marcar-enviada"), enlaceCerrar: porId("administracion-enlace-cerrar"),
+    enlaceVigencia: porId("administracion-enlace-vigencia"),
   };
-  const estado = { solicitudes: [], filtro: "PENDIENTE", operando: false, actual: null, foco: null, enlace: "", enlaceSolicitudId: null };
+  const estado = { solicitudes: [], historiales: new Map(), filtro: "PENDIENTE", operando: false, actual: null, foco: null, enlace: "", enlaceSolicitudId: null, enlaceEventoId: null };
 
   function registrarError(contexto, error) {
     console.error(`[Administración] ${contexto}`, { codigo: error?.code ?? "desconocido" });
@@ -46,6 +48,17 @@
       return { texto: "Aprobada, invitación pendiente", clase: "estado-aprobada" };
     }
     return { texto: texto(solicitud.estado), clase: "estado-pendiente" };
+  }
+  function eventosSolicitud(idSolicitud) { return estado.historiales.get(Number(idSolicitud)) ?? []; }
+  function tipoEvento(evento) { return evento.tipo_enlace === "INVITE" ? "Invitación" : "Recuperación"; }
+  function motivoEvento(evento) {
+    return { ALTA: "Alta", REENVIO: "Reenvío", OLVIDO_CONTRASENA: "Contraseña olvidada" }[evento.motivo] ?? texto(evento.motivo);
+  }
+  function estadoEvento(evento) {
+    if (evento.fecha_envio) return { texto: "Correo enviado", clase: "evento-enviado" };
+    const expiracion = new Date(evento.fecha_expiracion).getTime();
+    if (Number.isFinite(expiracion) && expiracion <= Date.now()) return { texto: "Enlace vencido", clase: "evento-vencido" };
+    return { texto: "Correo pendiente de envío", clase: "evento-pendiente" };
   }
   async function alertaError(mensaje = "No fue posible completar la operación.") {
     if (typeof window.Swal?.fire === "function") await window.Swal.fire({ icon: "error", title: "Ocurrió un problema", text: mensaje, confirmButtonText: "Aceptar", heightAuto: false });
@@ -84,19 +97,60 @@
     try {
       const { data, error } = await cliente.from("solicitudes_acceso").select("id_solicitud,nombre,email,dependencia_id,cargo,comentarios,estado,fecha_solicitud,fecha_revision,fecha_invitacion,fecha_ultimo_enlace,numero_enlaces,fecha_activacion,motivo_rechazo,mensaje_error,usuario_id,dependencias(nombre)").order("fecha_solicitud", { ascending: false });
       if (error) throw error;
-      estado.solicitudes = data ?? []; actualizarBadge(); renderizar();
+      estado.solicitudes = data ?? [];
+      estado.historiales = new Map();
+      const ids = estado.solicitudes.map((solicitud) => solicitud.id_solicitud);
+      if (ids.length) {
+        const { data: eventos, error: errorHistorial } = await cliente.from("historial_enlaces_acceso").select("id_evento,solicitud_id,tipo_enlace,motivo,fecha_generacion,fecha_expiracion,fecha_envio").in("solicitud_id", ids).order("fecha_generacion", { ascending: false });
+        if (errorHistorial) throw errorHistorial;
+        (eventos ?? []).forEach((evento) => {
+          const solicitudId = Number(evento.solicitud_id);
+          const historial = estado.historiales.get(solicitudId) ?? [];
+          historial.push(evento);
+          estado.historiales.set(solicitudId, historial);
+        });
+      }
+      actualizarBadge(); renderizar();
     } catch (error) { registrarError("No fue posible listar las solicitudes.", error); elementos.estado.textContent = "No fue posible consultar las solicitudes."; await alertaError("No fue posible consultar las solicitudes. Intenta nuevamente."); }
     finally { elementos.recargar.disabled = false; }
   }
   function agregarDetalle(etiqueta, valor) { const contenedor = document.createElement("div"); const dt = document.createElement("dt"); const dd = document.createElement("dd"); dt.textContent = etiqueta; dd.textContent = texto(valor); contenedor.append(dt, dd); elementos.detalle.append(contenedor); }
-  function botonAccion(textoBoton, accion, clase = "administracion-boton--primario") { const boton = document.createElement("button"); boton.type = "button"; boton.className = `administracion-boton ${clase}`; boton.textContent = textoBoton; boton.addEventListener("click", () => { if (accion === "RECHAZAR") void solicitarRechazo(); else void resolver(accion); }); elementos.acciones.append(boton); }
+  function botonAccion(textoBoton, accion, clase = "administracion-boton--primario") { const boton = document.createElement("button"); boton.type = "button"; boton.className = `administracion-boton ${clase}`; boton.textContent = textoBoton; boton.addEventListener("click", () => { if (accion === "RECHAZAR") void solicitarRechazo(); else if (accion === "GENERAR_RECUPERACION") void confirmarRecuperacion(); else void resolver(accion); }); elementos.acciones.append(boton); }
+  function datoEvento(etiqueta, valor) { const contenedor = document.createElement("div"); const termino = document.createElement("dt"); const detalle = document.createElement("dd"); termino.textContent = etiqueta; detalle.textContent = texto(valor); contenedor.append(termino, detalle); return contenedor; }
+  function renderizarHistorial(solicitud) {
+    elementos.historial.replaceChildren();
+    const eventos = eventosSolicitud(solicitud.id_solicitud);
+    if (!eventos.length) {
+      const vacio = document.createElement("p"); vacio.className = "administracion-historial__vacio"; vacio.textContent = "No hay enlaces registrados para esta solicitud."; elementos.historial.append(vacio);
+      if (solicitud.estado === "APROBADA" && !solicitud.fecha_invitacion && solicitud.fecha_ultimo_enlace) {
+        const legado = document.createElement("button"); legado.type = "button"; legado.className = "administracion-boton administracion-boton--secundario"; legado.textContent = "Marcar invitación anterior como enviada"; legado.addEventListener("click", () => void marcarInvitacionAnterior(solicitud.id_solicitud, legado)); elementos.historial.append(legado);
+      }
+      return;
+    }
+    eventos.forEach((evento) => {
+      const tarjeta = document.createElement("article"); tarjeta.className = "administracion-evento";
+      const encabezado = document.createElement("div"); encabezado.className = "administracion-evento__encabezado";
+      const titulo = document.createElement("h4"); titulo.textContent = `${tipoEvento(evento)} · ${motivoEvento(evento)}`;
+      const visual = estadoEvento(evento); const etiqueta = document.createElement("span"); etiqueta.className = `administracion-evento__estado ${visual.clase}`; etiqueta.textContent = visual.texto; encabezado.append(titulo, etiqueta);
+      const datos = document.createElement("dl"); datos.className = "administracion-evento__datos"; datos.append(datoEvento("Generación", fecha(evento.fecha_generacion)), datoEvento("Expiración estimada", fecha(evento.fecha_expiracion)), datoEvento("Fecha de envío", fecha(evento.fecha_envio)));
+      tarjeta.append(encabezado, datos);
+      if (!evento.fecha_envio) {
+        const aviso = document.createElement("p"); aviso.className = "administracion-evento__vigencia"; aviso.textContent = visual.clase === "evento-vencido" ? "El enlace ya no funcionará; puedes registrar el envío únicamente como constancia administrativa." : `Vigente aproximadamente hasta ${fecha(evento.fecha_expiracion)}.`; tarjeta.append(aviso);
+        const boton = document.createElement("button"); boton.type = "button"; boton.className = "administracion-boton administracion-boton--secundario"; boton.textContent = "Marcar como enviado"; boton.addEventListener("click", () => void confirmarEnvioEvento(evento.id_evento, boton)); tarjeta.append(boton);
+      }
+      elementos.historial.append(tarjeta);
+    });
+  }
   function abrirDetalle(solicitud, origen) {
     estado.actual = solicitud; estado.foco = origen; elementos.detalle.replaceChildren(); elementos.acciones.replaceChildren(); elementos.modalTitulo.textContent = solicitud.nombre;
     [["Correo",solicitud.email],["Dependencia",nombreDependencia(solicitud)],["Cargo",solicitud.cargo],["Comentarios",solicitud.comentarios],["Estado",estadoVisual(solicitud).texto],["Fecha de solicitud",fecha(solicitud.fecha_solicitud)],["Fecha de revisión",fecha(solicitud.fecha_revision)],["Fecha de invitación",fecha(solicitud.fecha_invitacion)],["Último enlace",fecha(solicitud.fecha_ultimo_enlace)],["Cuenta activada",fecha(solicitud.fecha_activacion)],["Enlaces generados",solicitud.numero_enlaces ?? 0],["Motivo de rechazo",solicitud.motivo_rechazo],["Mensaje de error",solicitud.mensaje_error]].forEach(([e,v]) => agregarDetalle(e,v));
+    renderizarHistorial(solicitud);
     if (!solicitud.fecha_activacion) {
       if (solicitud.estado === "PENDIENTE") { botonAccion("Aprobar", "APROBAR"); botonAccion("Rechazar", "RECHAZAR", "administracion-boton--secundario"); }
       if (solicitud.estado === "ERROR") { botonAccion("Reintentar aprobación", "APROBAR"); botonAccion("Rechazar", "RECHAZAR", "administracion-boton--secundario"); }
       if (solicitud.estado === "APROBADA") botonAccion("Generar nuevo enlace", "REGENERAR_ENLACE");
+    } else if (solicitud.estado === "APROBADA") {
+      botonAccion("Restablecer contraseña", "GENERAR_RECUPERACION");
     }
     elementos.backdrop.hidden = false; elementos.modal.hidden = false; document.body.style.overflow = "hidden"; elementos.modal.focus();
   }
@@ -106,6 +160,12 @@
     if (typeof window.Swal?.fire !== "function") return;
     const resultado = await window.Swal.fire({ title: "Motivo del rechazo", input: "textarea", inputAttributes: { maxlength: "1000", "aria-label": "Motivo del rechazo" }, inputValidator: (valor) => { const longitud = valor.trim().replace(/\s+/g," ").length; return longitud < 5 || longitud > 1000 ? "Captura un motivo de entre 5 y 1000 caracteres." : undefined; }, showCancelButton: true, confirmButtonText: "Rechazar solicitud", cancelButtonText: "Cancelar", heightAuto: false });
     if (resultado.isConfirmed) await resolver("RECHAZAR", resultado.value.trim().replace(/\s+/g," "));
+  }
+  async function confirmarRecuperacion() {
+    if (estado.operando || !estado.actual) return;
+    if (typeof window.Swal?.fire !== "function") { await resolver("GENERAR_RECUPERACION"); return; }
+    const resultado = await window.Swal.fire({ icon: "question", title: "Generar enlace de recuperación", text: "Se generará un enlace temporal para que el usuario establezca una nueva contraseña. La cuenta permanecerá activa.", showCancelButton: true, confirmButtonText: "Generar enlace", cancelButtonText: "Cancelar", heightAuto: false });
+    if (resultado.isConfirmed) await resolver("GENERAR_RECUPERACION");
   }
   async function resolver(accion, motivo_rechazo) {
     if (estado.operando || !estado.actual) return;
@@ -118,15 +178,56 @@
       establecerOperacion(false);
       cerrarDetalle();
       await cargarSolicitudes();
-      if (data.action_link) abrirEnlace(data.action_link, solicitudAnterior.id_solicitud, Boolean(solicitudAnterior.fecha_invitacion));
+      const enlaceGenerado = data.enlace ?? data.action_link;
+      if (enlaceGenerado) abrirEnlace(enlaceGenerado, solicitudAnterior.id_solicitud, data.id_evento ?? null, data.fecha_expiracion ?? null);
       else await alertaExito(data.mensaje ?? "La solicitud fue actualizada correctamente.");
     } catch (error) { registrarError("No fue posible resolver la solicitud.", error); await alertaError("No fue posible completar la operación. Revisa el estado de la solicitud e intenta nuevamente."); }
     finally { establecerOperacion(false); }
   }
-  function abrirEnlace(enlace, idSolicitud, yaEnviada) { estado.enlace = enlace; estado.enlaceSolicitudId = idSolicitud; elementos.enlace.value = enlace; elementos.marcarEnviada.hidden = yaEnviada; elementos.enlaceBackdrop.hidden = false; elementos.enlaceModal.hidden = false; document.body.style.overflow = "hidden"; elementos.enlaceModal.focus(); }
-  function cerrarEnlace() { if (estado.operando) return; elementos.enlaceModal.hidden = true; elementos.enlaceBackdrop.hidden = true; elementos.enlace.value = ""; estado.enlace = ""; estado.enlaceSolicitudId = null; document.body.style.overflow = ""; }
+  function abrirEnlace(enlace, idSolicitud, idEvento, fechaExpiracion) { estado.enlace = enlace; estado.enlaceSolicitudId = idSolicitud; estado.enlaceEventoId = idEvento; elementos.enlace.value = enlace; elementos.enlaceVigencia.textContent = fechaExpiracion ? `Este enlace vence aproximadamente el ${fecha(fechaExpiracion)}.` : "Este enlace vence en 24 horas."; elementos.marcarEnviada.hidden = false; elementos.enlaceBackdrop.hidden = false; elementos.enlaceModal.hidden = false; document.body.style.overflow = "hidden"; elementos.enlaceModal.focus(); }
+  function cerrarEnlace() { if (estado.operando) return; elementos.enlaceModal.hidden = true; elementos.enlaceBackdrop.hidden = true; elementos.enlace.value = ""; elementos.enlaceVigencia.textContent = "Este enlace vence en 24 horas."; estado.enlace = ""; estado.enlaceSolicitudId = null; estado.enlaceEventoId = null; document.body.style.overflow = ""; }
   async function copiarEnlace() { if (!estado.enlace) return; try { await navigator.clipboard.writeText(estado.enlace); await alertaExito("El enlace se copió al portapapeles."); } catch (error) { registrarError("No fue posible copiar el enlace.", error); elementos.enlace.focus(); elementos.enlace.select(); await alertaError("No fue posible copiar automáticamente. Selecciona y copia el enlace manualmente."); } }
-  async function marcarEnviada() { if (estado.operando || !estado.enlaceSolicitudId) return; establecerOperacion(true); try { const { data, error } = await cliente.functions.invoke("resolver-solicitud-acceso", { body: { accion: "MARCAR_ENVIADA", id_solicitud: estado.enlaceSolicitudId } }); if (error || data?.ok !== true) throw error ?? new Error("Respuesta no válida."); establecerOperacion(false); cerrarEnlace(); await cargarSolicitudes(); await alertaExito("La invitación quedó marcada como enviada."); } catch (error) { registrarError("No fue posible marcar la invitación.", error); await alertaError("No fue posible marcar la invitación como enviada."); } finally { establecerOperacion(false); } }
+  function actualizarEventoLocal(evento) {
+    if (!evento?.id_evento || !evento?.solicitud_id) return;
+    const solicitudId = Number(evento.solicitud_id); const eventos = eventosSolicitud(solicitudId); const indice = eventos.findIndex((item) => Number(item.id_evento) === Number(evento.id_evento));
+    if (indice >= 0) eventos[indice] = { ...eventos[indice], ...evento }; else eventos.unshift(evento);
+    estado.historiales.set(solicitudId, eventos);
+    const solicitud = estado.solicitudes.find((item) => Number(item.id_solicitud) === solicitudId);
+    if (solicitud && evento.tipo_enlace === "INVITE" && evento.fecha_envio && !solicitud.fecha_invitacion) solicitud.fecha_invitacion = evento.fecha_envio;
+    if (estado.actual && Number(estado.actual.id_solicitud) === solicitudId) renderizarHistorial(estado.actual);
+    renderizar();
+  }
+  async function confirmarEnvioEvento(idEvento, boton = null, cerrarModalEnlace = false) {
+    if (estado.operando || !idEvento) return;
+    if (typeof window.Swal?.fire === "function") {
+      const confirmacion = await window.Swal.fire({ icon: "question", title: "Confirmar envío", text: "¿Confirmas que el correo con este enlace ya fue enviado?", showCancelButton: true, confirmButtonText: "Sí, registrar envío", cancelButtonText: "Cancelar", heightAuto: false });
+      if (!confirmacion.isConfirmed) return;
+    }
+    await marcarEventoEnviado(idEvento, boton, cerrarModalEnlace);
+  }
+  async function marcarEventoEnviado(idEvento, boton = null, cerrarModalEnlace = false) {
+    establecerOperacion(true); if (boton) boton.disabled = true;
+    try {
+      const { data, error } = await cliente.functions.invoke("resolver-solicitud-acceso", { body: { accion: "MARCAR_ENLACE_ENVIADO", id_evento: Number(idEvento) } });
+      if (error || data?.ok !== true || !data.evento) throw error ?? new Error("Respuesta no válida.");
+      actualizarEventoLocal(data.evento); establecerOperacion(false); if (cerrarModalEnlace) cerrarEnlace();
+      if (typeof window.Swal?.fire === "function") await window.Swal.fire({ icon: "success", title: "Envío registrado", text: "Se registró correctamente que el enlace fue enviado.", confirmButtonText: "Aceptar", heightAuto: false });
+    } catch (error) { registrarError("No fue posible registrar el envío.", error); await alertaError("No fue posible registrar el envío. Intenta nuevamente."); }
+    finally { establecerOperacion(false); if (boton) boton.disabled = false; }
+  }
+  async function marcarInvitacionAnterior(idSolicitud, boton) {
+    if (estado.operando) return;
+    const desdeModalEnlace = !elementos.enlaceModal.hidden;
+    if (typeof window.Swal?.fire === "function") { const confirmacion = await window.Swal.fire({ icon: "question", title: "Confirmar envío", text: "¿Confirmas que la invitación anterior ya fue enviada?", showCancelButton: true, confirmButtonText: "Sí, registrar envío", cancelButtonText: "Cancelar", heightAuto: false }); if (!confirmacion.isConfirmed) return; }
+    establecerOperacion(true); boton.disabled = true;
+    try { const { data, error } = await cliente.functions.invoke("resolver-solicitud-acceso", { body: { accion: "MARCAR_ENVIADA", id_solicitud: Number(idSolicitud) } }); if (error || data?.ok !== true) throw error ?? new Error("Respuesta no válida."); const solicitud = estado.solicitudes.find((item) => Number(item.id_solicitud) === Number(idSolicitud)); if (solicitud) solicitud.fecha_invitacion = data.fecha_invitacion ?? new Date().toISOString(); if (estado.actual) renderizarHistorial(estado.actual); renderizar(); establecerOperacion(false); if (desdeModalEnlace) cerrarEnlace(); await alertaExito("Se registró el envío de la invitación anterior."); }
+    catch (error) { registrarError("No fue posible registrar la invitación anterior.", error); await alertaError("No fue posible registrar el envío."); }
+    finally { establecerOperacion(false); boton.disabled = false; }
+  }
+  async function marcarEnviada() {
+    if (estado.enlaceEventoId) { await confirmarEnvioEvento(estado.enlaceEventoId, elementos.marcarEnviada, true); return; }
+    if (estado.enlaceSolicitudId) await marcarInvitacionAnterior(estado.enlaceSolicitudId, elementos.marcarEnviada);
+  }
   async function cerrarSesion() { if (estado.operando) return; const { error } = await cliente.auth.signOut(); if (error) { registrarError("No fue posible cerrar la sesión.", error); await alertaError("No fue posible cerrar la sesión."); return; } window.location.replace("index.html"); }
   async function inicializar() {
     if (!cliente) { window.location.replace("index.html"); return; }

@@ -1,0 +1,118 @@
+.administracion-historial {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--admin-borde);
+}
+
+.administracion-historial h3 {
+  margin: 0 0 16px;
+  color: var(--admin-oscuro);
+  font: 500 1.35rem Georgia, "Times New Roman", serif;
+}
+
+.administracion-historial__lista {
+  display: grid;
+  gap: 14px;
+}
+
+.administracion-historial__vacio {
+  margin: 0;
+  padding: 16px;
+  color: #656b6b;
+  border-radius: 6px;
+  background: #f4f7f6;
+}
+
+.administracion-evento {
+  padding: 16px;
+  border: 1px solid var(--admin-borde);
+  border-radius: 7px;
+  background: #fbfcfc;
+}
+
+.administracion-evento__encabezado {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.administracion-evento__encabezado h4 {
+  margin: 3px 0 0;
+  color: var(--admin-oscuro);
+  font-size: 1rem;
+}
+
+.administracion-evento__estado {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.evento-pendiente {
+  color: #714d00;
+  background: #fff2c7;
+}
+
+.evento-enviado {
+  color: #174d20;
+  background: #e1f4e4;
+}
+
+.evento-vencido {
+  color: #7b1f2b;
+  background: #fde4e7;
+}
+
+.administracion-evento__datos {
+  margin: 14px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.administracion-evento__datos div {
+  min-width: 0;
+}
+
+.administracion-evento__datos dt {
+  color: #6a7070;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.administracion-evento__datos dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.administracion-evento__vigencia {
+  margin: 13px 0;
+  color: #5b6262;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.administracion-advertencia--privacidad {
+  color: #174d20;
+  border-left-color: var(--admin-verde);
+  background: #eef8f6;
+}
+
+@media (max-width: 720px) {
+  .administracion-evento__encabezado {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .administracion-evento__estado {
+    align-self: flex-start;
+  }
+
+  .administracion-evento__datos {
+    grid-template-columns: 1fr;
+  }
+}

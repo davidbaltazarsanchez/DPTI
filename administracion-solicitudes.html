@@ -7,6 +7,7 @@
     <link rel="icon" href="img/logo-gob-mx_ok.png" />
     <link rel="stylesheet" href="css/estilos.css" />
     <link rel="stylesheet" href="css/administracion-solicitudes.css" />
+    <link rel="stylesheet" href="css/administracion-solicitudes-historial.css" />
   </head>
   <body class="administracion-page">
     <div class="layout administracion-layout">
@@ -60,7 +61,14 @@
       <div id="administracion-modal-backdrop" class="administracion-modal-backdrop" hidden></div>
       <section id="administracion-modal" class="administracion-modal" role="dialog" aria-modal="true" aria-labelledby="administracion-modal-titulo" tabindex="-1" hidden>
         <header><div><p>Detalle de solicitud</p><h2 id="administracion-modal-titulo"></h2></div><button id="administracion-modal-cerrar" type="button">Cerrar</button></header>
-        <div class="administracion-modal__contenido"><dl id="administracion-detalle" class="administracion-detalle"></dl><div id="administracion-acciones" class="administracion-acciones"></div></div>
+        <div class="administracion-modal__contenido">
+          <dl id="administracion-detalle" class="administracion-detalle"></dl>
+          <div id="administracion-acciones" class="administracion-acciones"></div>
+          <section class="administracion-historial" aria-labelledby="administracion-historial-titulo">
+            <h3 id="administracion-historial-titulo">Historial de enlaces</h3>
+            <div id="administracion-historial-lista" class="administracion-historial__lista"></div>
+          </section>
+        </div>
       </section>
 
       <div id="administracion-enlace-backdrop" class="administracion-modal-backdrop" hidden></div>
@@ -68,8 +76,9 @@
         <header><div><p>Invitación</p><h2 id="administracion-enlace-titulo">Enlace generado correctamente</h2></div></header>
         <div class="administracion-modal__contenido">
           <label class="administracion-enlace"><span>Enlace temporal</span><input id="administracion-enlace" type="text" readonly /></label>
-          <p>Este enlace vence en 24 horas.</p>
-          <p class="administracion-advertencia">No abras este enlace en el navegador donde tienes iniciada la sesión de administrador, porque la sesión podría cambiar al usuario invitado.</p>
+          <p id="administracion-enlace-vigencia">Este enlace vence en 24 horas.</p>
+          <p class="administracion-advertencia">No abras este enlace en el navegador donde tienes iniciada la sesión de administrador, porque la sesión podría cambiar al usuario del enlace.</p>
+          <p class="administracion-advertencia administracion-advertencia--privacidad">El enlace no se almacenará. Si lo pierdes, tendrás que generar uno nuevo.</p>
           <div class="administracion-acciones"><button id="administracion-copiar" class="administracion-boton administracion-boton--secundario" type="button">Copiar enlace</button><button id="administracion-marcar-enviada" class="administracion-boton administracion-boton--primario" type="button">Marcar como enviado</button><button id="administracion-enlace-cerrar" class="administracion-boton administracion-boton--secundario" type="button">Cerrar</button></div>
         </div>
       </section>
