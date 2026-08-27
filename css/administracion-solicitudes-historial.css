@@ -102,7 +102,77 @@
   background: #eef8f6;
 }
 
+/* Pestañas principales y vista segura de usuarios de Authentication. */
+.administracion-vistas {
+  margin-bottom: 22px;
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid var(--admin-borde);
+}
+
+.administracion-vistas button {
+  margin-bottom: -2px;
+  padding: 13px 18px;
+  color: #526060;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.administracion-vistas button[aria-selected="true"] {
+  color: var(--admin-oscuro);
+  border-bottom-color: var(--admin-dorado);
+}
+
+.administracion-usuarios-total {
+  margin: -8px 0 14px;
+  color: #5d6767;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.administracion-tabla--usuarios {
+  min-width: 1080px;
+}
+
+.administracion-modal--usuario {
+  width: min(880px, calc(100vw - 36px));
+}
+
+.administracion-boton--enlace {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 @media (max-width: 720px) {
+  .administracion-vistas {
+    align-items: stretch;
+    flex-direction: column;
+    border-bottom: 0;
+  }
+
+  .administracion-vistas button {
+    margin: 0;
+    border: 1px solid var(--admin-borde);
+    border-left: 4px solid transparent;
+    text-align: left;
+  }
+
+  .administracion-vistas button[aria-selected="true"] {
+    border-bottom-color: var(--admin-borde);
+    border-left-color: var(--admin-dorado);
+    background: #fff;
+  }
+
+  .administracion-tabla--usuarios {
+    min-width: 0;
+  }
+
   .administracion-evento__encabezado {
     align-items: stretch;
     flex-direction: column;
