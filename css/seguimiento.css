@@ -1057,6 +1057,46 @@
   line-height: 1.45;
 }
 
+/* El símbolo es decorativo y permanece fijo mientras el monto se edita. */
+.seguimiento-control-moneda {
+  position: relative;
+  min-width: 0;
+}
+
+.seguimiento-control-moneda__simbolo {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  z-index: 1;
+  color: var(--seguimiento-verde-profundo);
+  font-weight: 700;
+  pointer-events: none;
+  user-select: none;
+  transform: translateY(-50%);
+}
+
+.seguimiento-modal .seguimiento-control-moneda input {
+  min-width: 0;
+  padding-left: 31px;
+}
+
+.seguimiento-modal .seguimiento-control-moneda input[aria-invalid="true"] {
+  border-color: #b42332;
+  box-shadow: 0 0 0 3px rgba(180, 35, 50, 0.1);
+}
+
+.seguimiento-campo__error {
+  margin: 7px 0 0;
+  display: block;
+  color: #9d1c29;
+  font-size: 0.73rem;
+  line-height: 1.45;
+}
+
+.seguimiento-campo__error[hidden] {
+  display: none;
+}
+
 .seguimiento-avance {
   min-width: 0;
   margin: 0 0 20px;
@@ -1149,6 +1189,13 @@
   margin: 7px 0 0;
   color: var(--seguimiento-gris);
   font-size: 0.72rem;
+}
+
+.seguimiento-historial__monto {
+  margin: 9px 0 0;
+  color: var(--seguimiento-verde-profundo);
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 .seguimiento-historial__comentarios {

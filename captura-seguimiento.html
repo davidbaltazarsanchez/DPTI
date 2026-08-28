@@ -569,6 +569,39 @@
                 </p>
               </fieldset>
 
+              <!-- Monto opcional de la actualización, expresado en pesos mexicanos. -->
+              <div class="seguimiento-campo">
+                <label for="seguimiento-monto">Monto</label>
+                <div class="seguimiento-control-moneda">
+                  <span
+                    class="seguimiento-control-moneda__simbolo"
+                    aria-hidden="true"
+                    >$</span
+                  >
+                  <input
+                    id="seguimiento-monto"
+                    name="monto"
+                    type="text"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    placeholder="0.00"
+                    aria-describedby="seguimiento-monto-ayuda seguimiento-monto-error"
+                  />
+                </div>
+                <small
+                  id="seguimiento-monto-ayuda"
+                  class="seguimiento-campo__ayuda"
+                >
+                  Monto opcional en pesos mexicanos.
+                </small>
+                <small
+                  id="seguimiento-monto-error"
+                  class="seguimiento-campo__error"
+                  aria-live="polite"
+                  hidden
+                ></small>
+              </div>
+
               <div class="seguimiento-campo">
                 <label for="seguimiento-comentarios">Comentarios</label>
                 <textarea

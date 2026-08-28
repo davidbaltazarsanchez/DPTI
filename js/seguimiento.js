@@ -50,6 +50,8 @@
     avanceRango: porId("seguimiento-avance-rango"),
     avanceNumero: porId("seguimiento-avance-numero"),
     avanceAyuda: porId("seguimiento-avance-ayuda"),
+    monto: porId("seguimiento-monto"),
+    montoError: porId("seguimiento-monto-error"),
     comentarios: porId("seguimiento-comentarios"),
     archivoCampo: porId("seguimiento-archivo-campo"),
     archivo: porId("seguimiento-archivo"),
@@ -68,6 +70,17 @@
   const BUCKET_EVIDENCIAS = "evidencias-seguimiento";
   const DURACION_ENLACE_REPORTE = 24 * 60 * 60;
   const TAMANO_MAXIMO_ARCHIVO = 2.5 * 1024 * 1024;
+  const MONTO_MAXIMO_ENTERO = "9999999999999";
+  const FORMATO_MONTO = new Intl.NumberFormat("es-MX", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  const FORMATO_MONTO_MXN = new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
   const EXTENSIONES_PERMITIDAS = new Set([
     "pdf",
     "jpg",
@@ -622,11 +635,107 @@
   function actualizarEstadoBotonGuardar() {
     const estatusSeleccionado = Boolean(elementos.estatus.value);
     const comentarioCapturado = Boolean(elementos.comentarios.value.trim());
+    const montoValido = validarMonto(elementos.monto.value).valido;
     elementos.guardarActualizacion.disabled = !(
       estatusSeleccionado &&
       comentarioCapturado &&
+      montoValido &&
       !estado.guardandoActualizacion
     );
+  }
+
+  function validarMonto(valorCapturado) {
+    let texto = String(valorCapturado ?? "").trim();
+    if (!texto) {
+      return { valido: true, valor: null, mensaje: "" };
+    }
+
+    if (texto.startsWith("$")) {
+      texto = texto.slice(1).trim();
+    }
+    if (texto.startsWith("-")) {
+      return {
+        valido: false,
+        valor: null,
+        mensaje: "El monto no puede ser negativo.",
+      };
+    }
+    if (/\s/.test(texto)) {
+      return {
+        valido: false,
+        valor: null,
+        mensaje: "Captura un monto válido, por ejemplo 1,000.50.",
+      };
+    }
+
+    const sinSeparadores = /^\d+(?:\.\d{1,2})?$/.test(texto);
+    const conSeparadores = /^\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?$/.test(texto);
+    if (!sinSeparadores && !conSeparadores) {
+      return {
+        valido: false,
+        valor: null,
+        mensaje: /\.\d{3,}$/.test(texto)
+          ? "El monto admite como máximo dos decimales."
+          : "Captura un monto válido, por ejemplo 1,000.50.",
+      };
+    }
+
+    const numeroSinComas = texto.replace(/,/g, "");
+    const [parteEnteraOriginal, parteDecimal = ""] = numeroSinComas.split(".");
+    const parteEntera = parteEnteraOriginal.replace(/^0+(?=\d)/, "");
+    const superaMaximo =
+      parteEntera.length > MONTO_MAXIMO_ENTERO.length ||
+      (parteEntera.length === MONTO_MAXIMO_ENTERO.length &&
+        parteEntera > MONTO_MAXIMO_ENTERO);
+    if (superaMaximo) {
+      return {
+        valido: false,
+        valor: null,
+        mensaje: "El monto no puede superar $9,999,999,999,999.99.",
+      };
+    }
+
+    const valor = `${parteEntera}.${parteDecimal.padEnd(2, "0")}`;
+    if (!Number.isFinite(Number(valor))) {
+      return {
+        valido: false,
+        valor: null,
+        mensaje: "Captura un monto válido.",
+      };
+    }
+    return { valido: true, valor, mensaje: "" };
+  }
+
+  function mostrarValidacionMonto(resultado = validarMonto(elementos.monto.value)) {
+    elementos.monto.toggleAttribute("aria-invalid", !resultado.valido);
+    elementos.montoError.textContent = resultado.mensaje;
+    elementos.montoError.hidden = resultado.valido;
+    return resultado;
+  }
+
+  function formatearMontoCapturado() {
+    const resultado = mostrarValidacionMonto();
+    if (resultado.valido && resultado.valor !== null) {
+      elementos.monto.value = FORMATO_MONTO.format(Number(resultado.valor));
+    }
+    actualizarEstadoBotonGuardar();
+  }
+
+  function prepararMontoParaEdicion() {
+    const resultado = validarMonto(elementos.monto.value);
+    if (resultado.valido && resultado.valor !== null) {
+      elementos.monto.value = resultado.valor;
+    }
+  }
+
+  function formatearMontoHistorial(valor) {
+    if (valor === null || valor === undefined || valor === "") {
+      return "Sin monto registrado";
+    }
+    const numero = Number(valor);
+    return Number.isFinite(numero)
+      ? FORMATO_MONTO_MXN.format(numero)
+      : "Sin monto registrado";
   }
 
   function extensionArchivo(nombre) {
@@ -787,6 +896,10 @@
           registro.porcentaje_avance == null
             ? ""
             : Number(registro.porcentaje_avance);
+        const monto =
+          registro.monto == null || registro.monto === ""
+            ? ""
+            : Number(registro.monto);
         return {
           tema: textoReporte(registro.tema),
           subtema: textoReporte(registro.subtema),
@@ -794,6 +907,7 @@
           dependencias: textoReporte(registro.dependencias),
           estatus: textoReporte(registro.estatus),
           avance: Number.isFinite(avance) ? avance : "",
+          monto: Number.isFinite(monto) ? monto : "",
           comentarios: textoReporte(registro.comentarios),
           fechaActualizacion: obtenerFechaReporte(
             registro.fecha_actualizacion,
@@ -823,6 +937,7 @@
         { header: "Dependencias", key: "dependencias", width: 40 },
         { header: "Estatus", key: "estatus", width: 20 },
         { header: "Avance (%)", key: "avance", width: 14 },
+        { header: "Monto", key: "monto", width: 20 },
         { header: "Comentarios", key: "comentarios", width: 60 },
         {
           header: "Fecha de actualización",
@@ -893,6 +1008,12 @@
           celdaFecha.numFmt = "dd/mm/yyyy hh:mm";
         } else {
           celdaFecha.value = "";
+        }
+        const celdaMonto = fila.getCell("monto");
+        if (typeof celdaMonto.value === "number") {
+          celdaMonto.numFmt = "$#,##0.00";
+        } else {
+          celdaMonto.value = "";
         }
       });
 
@@ -1005,6 +1126,11 @@
       datos.textContent = `${nombre} · ${formatearFecha(actualizacion.fecha_actualizacion)}`;
       item.append(cabecera, datos);
 
+      const monto = document.createElement("p");
+      monto.className = "seguimiento-historial__monto";
+      monto.textContent = `Monto: ${formatearMontoHistorial(actualizacion.monto)}`;
+      item.append(monto);
+
       if (actualizacion.comentarios) {
         const comentarios = document.createElement("p");
         comentarios.className = "seguimiento-historial__comentarios";
@@ -1041,7 +1167,7 @@
       const { data: actualizaciones, error } = await cliente
         .from("actualizaciones")
         .select(
-          "id_act,accion_id,usuario_id,estatus,porcentaje_avance,comentarios,fecha_actualizacion,created_at",
+          "id_act,accion_id,usuario_id,estatus,porcentaje_avance,monto,comentarios,fecha_actualizacion,created_at",
         )
         .eq("accion_id", accionId)
         .order("fecha_actualizacion", { ascending: false })
@@ -1112,6 +1238,7 @@
     elementos.actualizacionForm.reset();
     elementos.estatus.value = "";
     configurarAvancePorEstatus();
+    mostrarValidacionMonto();
     mostrarMensajeActualizacion();
     estado.formularioEditado = false;
     actualizarEstadoBotonGuardar();
@@ -1218,6 +1345,7 @@
     }
     const estatus = elementos.estatus.value;
     const porcentaje = Number(elementos.avanceNumero.value);
+    const montoResultado = mostrarValidacionMonto();
     const comentarios = elementos.comentarios.value.trim();
     const archivo = accion.permite_archivo
       ? (elementos.archivo.files?.[0] ?? null)
@@ -1237,6 +1365,11 @@
         "El porcentaje no corresponde con el estatus seleccionado.",
       );
       elementos.avanceNumero.focus();
+      return;
+    }
+    if (!montoResultado.valido) {
+      mostrarMensajeActualizacion(montoResultado.mensaje);
+      elementos.monto.focus();
       return;
     }
     const errorArchivo = validarArchivo(archivo);
@@ -1264,6 +1397,7 @@
           usuario_id: estado.session.user.id,
           estatus,
           porcentaje_avance: porcentaje,
+          monto: montoResultado.valor,
           comentarios: comentarios || null,
         })
         .select("id_act")
@@ -1774,6 +1908,13 @@
       estado.formularioEditado = true;
       sincronizarAvance(elementos.avanceNumero, elementos.avanceRango);
     });
+    elementos.monto.addEventListener("input", () => {
+      estado.formularioEditado = true;
+      mostrarValidacionMonto();
+      actualizarEstadoBotonGuardar();
+    });
+    elementos.monto.addEventListener("focus", prepararMontoParaEdicion);
+    elementos.monto.addEventListener("blur", formatearMontoCapturado);
     elementos.comentarios.addEventListener("input", () => {
       estado.formularioEditado = true;
       actualizarEstadoBotonGuardar();
