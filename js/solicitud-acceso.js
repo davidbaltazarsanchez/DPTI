@@ -9,6 +9,8 @@
     email: porId("solicitud-email"),
     dependencia: porId("solicitud-dependencia"),
     dependenciaEstado: porId("solicitud-dependencias-estado"),
+    dependenciaOtraCampo: porId("solicitud-dependencia-otra-campo"),
+    dependenciaOtra: porId("solicitud-dependencia-otra"),
     cargo: porId("solicitud-cargo"),
     comentarios: porId("solicitud-comentarios"),
     comentariosContador: porId("solicitud-comentarios-contador"),
@@ -21,12 +23,15 @@
     elementos.nombre,
     elementos.email,
     elementos.dependencia,
+    elementos.dependenciaOtra,
     elementos.cargo,
     elementos.comentarios,
     elementos.sitioWeb,
   ];
   const EXPRESION_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const NOMBRE_DEPENDENCIA_OTRA = "otra";
   let dependenciasDisponibles = false;
+  let idDependenciaOtra = null;
   let envioEnCurso = false;
 
   function registrarError(contexto, error) {
@@ -46,10 +51,15 @@
   }
 
   function datosNormalizados() {
+    const dependenciaId = Number(elementos.dependencia.value);
+    const seleccionoOtra = dependenciaId === idDependenciaOtra;
     return {
       nombre: elementos.nombre.value.trim(),
       email: elementos.email.value.trim().toLowerCase(),
-      dependencia_id: Number(elementos.dependencia.value),
+      dependencia_id: dependenciaId,
+      dependencia_otra: seleccionoOtra
+        ? elementos.dependenciaOtra.value.trim()
+        : null,
       cargo: elementos.cargo.value.trim(),
       comentarios: elementos.comentarios.value.trim(),
       sitio_web: elementos.sitioWeb.value,
@@ -76,6 +86,18 @@
     ) {
       campo = elementos.dependencia;
       mensaje = "Selecciona una dependencia.";
+    } else if (
+      datos.dependencia_id === idDependenciaOtra &&
+      !datos.dependencia_otra
+    ) {
+      campo = elementos.dependenciaOtra;
+      mensaje = "Especifica el nombre de la dependencia.";
+    } else if (
+      datos.dependencia_otra !== null &&
+      datos.dependencia_otra.length > 150
+    ) {
+      campo = elementos.dependenciaOtra;
+      mensaje = "La dependencia no puede exceder 150 caracteres.";
     } else if (datos.cargo.length > 150) {
       campo = elementos.cargo;
       mensaje = "El cargo o área no puede exceder 150 caracteres.";
@@ -104,6 +126,17 @@
   function actualizarContador() {
     elementos.comentariosContador.textContent =
       `${elementos.comentarios.value.length}/1000`;
+  }
+
+  function actualizarCampoDependenciaOtra() {
+    const seleccionoOtra =
+      idDependenciaOtra !== null &&
+      Number(elementos.dependencia.value) === idDependenciaOtra;
+    elementos.dependenciaOtraCampo.hidden = !seleccionoOtra;
+    elementos.dependenciaOtra.required = seleccionoOtra;
+    if (!seleccionoOtra) {
+      elementos.dependenciaOtra.value = "";
+    }
   }
 
   function establecerFormularioDeshabilitado(deshabilitado) {
@@ -179,20 +212,29 @@
         .filter(
           (dependencia) =>
             Number.isInteger(dependencia.id) &&
-            dependencia.id > 0 &&
-            dependencia.nombre,
-        )
-        .sort((dependenciaA, dependenciaB) =>
-          dependenciaA.nombre.localeCompare(dependenciaB.nombre, "es", {
-            sensitivity: "base",
-          }),
+            dependencia.id > 0 && dependencia.nombre,
         );
 
       if (!dependencias.length) {
         throw new Error("No hay dependencias disponibles.");
       }
 
-      dependencias.forEach((dependencia) => {
+      const dependenciaOtra = dependencias.find(
+        (dependencia) =>
+          dependencia.nombre.toLocaleLowerCase("es") ===
+          NOMBRE_DEPENDENCIA_OTRA,
+      );
+      idDependenciaOtra = dependenciaOtra?.id ?? null;
+      const dependenciasOrdenadas = dependenciaOtra
+        ? [
+            ...dependencias.filter(
+              (dependencia) => dependencia.id !== dependenciaOtra.id,
+            ),
+            dependenciaOtra,
+          ]
+        : dependencias;
+
+      dependenciasOrdenadas.forEach((dependencia) => {
         const opcion = document.createElement("option");
         opcion.value = String(dependencia.id);
         opcion.textContent = dependencia.nombre;
@@ -245,6 +287,7 @@
 
       solicitudEnviada = true;
       elementos.form.reset();
+      actualizarCampoDependenciaOtra();
       actualizarContador();
       await mostrarConfirmacion();
     } catch (error) {
@@ -265,13 +308,21 @@
   [
     elementos.nombre,
     elementos.email,
-    elementos.dependencia,
     elementos.cargo,
   ].forEach((campo) => {
     campo.addEventListener("input", () => {
       mostrarMensaje();
       actualizarEstadoBoton();
     });
+  });
+  elementos.dependencia.addEventListener("change", () => {
+    mostrarMensaje();
+    actualizarCampoDependenciaOtra();
+    actualizarEstadoBoton();
+  });
+  elementos.dependenciaOtra.addEventListener("input", () => {
+    mostrarMensaje();
+    actualizarEstadoBoton();
   });
   elementos.comentarios.addEventListener("input", () => {
     mostrarMensaje();
@@ -280,6 +331,7 @@
   });
 
   actualizarContador();
+  actualizarCampoDependenciaOtra();
   actualizarEstadoBoton();
   void cargarDependencias();
 })();

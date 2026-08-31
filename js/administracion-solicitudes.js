@@ -22,7 +22,7 @@
   }
   function texto(valor) { return valor == null || valor === "" ? "—" : String(valor); }
   function fecha(valor) { if (!valor) return "—"; const dato = new Date(valor); return Number.isNaN(dato.getTime()) ? "—" : new Intl.DateTimeFormat("es-MX", { dateStyle: "medium", timeStyle: "short" }).format(dato); }
-  function nombreDependencia(solicitud) { const relacion = solicitud.dependencias; return Array.isArray(relacion) ? texto(relacion[0]?.nombre) : texto(relacion?.nombre); }
+  function nombreDependencia(solicitud) { const relacion = solicitud.dependencias; const nombreCatalogo = Array.isArray(relacion) ? relacion[0]?.nombre : relacion?.nombre; return String(nombreCatalogo ?? "").trim().toLocaleLowerCase("es") === "otra" ? texto(solicitud.dependencia_otra) : texto(nombreCatalogo); }
   function dependenciasUsuario(usuario) { const nombres = (Array.isArray(usuario.dependencias) ? usuario.dependencias : []).map((item) => item?.nombre).filter(Boolean); return nombres.length ? nombres.join(", ") : "—"; }
   function estadoVisual(solicitud) {
     if (solicitud.fecha_activacion) return { texto: "Cuenta activada", clase: "estado-activada" };
@@ -57,7 +57,7 @@
   async function cargarSolicitudes() {
     elementos.recargar.disabled = true; elementos.tabla.hidden = true; elementos.estado.hidden = false; elementos.estado.textContent = "Consultando solicitudes…";
     try {
-      const { data, error } = await cliente.from("solicitudes_acceso").select("id_solicitud,nombre,email,dependencia_id,cargo,comentarios,estado,fecha_solicitud,fecha_revision,fecha_invitacion,fecha_ultimo_enlace,numero_enlaces,fecha_activacion,motivo_rechazo,mensaje_error,usuario_id,dependencias(nombre)").order("fecha_solicitud", { ascending: false }); if (error) throw error;
+      const { data, error } = await cliente.from("solicitudes_acceso").select("id_solicitud,nombre,email,dependencia_id,dependencia_otra,cargo,comentarios,estado,fecha_solicitud,fecha_revision,fecha_invitacion,fecha_ultimo_enlace,numero_enlaces,fecha_activacion,motivo_rechazo,mensaje_error,usuario_id,dependencias(nombre)").order("fecha_solicitud", { ascending: false }); if (error) throw error;
       estado.solicitudes = data ?? []; estado.historiales = new Map(); const ids = estado.solicitudes.map((solicitud) => solicitud.id_solicitud);
       if (ids.length) { const { data: eventos, error: errorHistorial } = await cliente.from("historial_enlaces_acceso").select("id_evento,solicitud_id,tipo_enlace,motivo,fecha_generacion,fecha_expiracion,fecha_envio").in("solicitud_id", ids).order("fecha_generacion", { ascending: false }); if (errorHistorial) throw errorHistorial; (eventos ?? []).forEach((evento) => { const solicitudId = Number(evento.solicitud_id); const historial = estado.historiales.get(solicitudId) ?? []; historial.push(evento); estado.historiales.set(solicitudId, historial); }); }
       actualizarBadge(); renderizar();
