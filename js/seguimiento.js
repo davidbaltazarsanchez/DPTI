@@ -807,6 +807,18 @@
     return fechaValida;
   }
 
+  function obtenerMontoParaExcel(valor) {
+    if (valor === null || valor === undefined || valor === "") {
+      return null;
+    }
+
+    const monto =
+      typeof valor === "number"
+        ? valor
+        : Number(String(valor).replace(/[$,\s]/g, ""));
+    return Number.isFinite(monto) ? monto : null;
+  }
+
   async function descargarReporteExcel() {
     if (elementos.descargarReporte.disabled) {
       return;
@@ -835,20 +847,8 @@
         throw error;
       }
 
-      const registros = [...(data ?? [])].sort((registroA, registroB) => {
-        const campos = ["tema", "subtema", "accion"];
-        for (const campo of campos) {
-          const comparacion = textoReporte(registroA[campo]).localeCompare(
-            textoReporte(registroB[campo]),
-            "es",
-            { sensitivity: "base", numeric: true },
-          );
-          if (comparacion !== 0) {
-            return comparacion;
-          }
-        }
-        return 0;
-      });
+      // Conserva exactamente el orden t.orden, s.orden, a.orden de la RPC.
+      const registros = [...(data ?? [])];
 
       if (!registros.length) {
         mostrarAviso("No hay información disponible para generar el reporte.");
@@ -896,10 +896,6 @@
           registro.porcentaje_avance == null
             ? ""
             : Number(registro.porcentaje_avance);
-        const monto =
-          registro.monto == null || registro.monto === ""
-            ? ""
-            : Number(registro.monto);
         return {
           tema: textoReporte(registro.tema),
           subtema: textoReporte(registro.subtema),
@@ -907,7 +903,7 @@
           dependencias: textoReporte(registro.dependencias),
           estatus: textoReporte(registro.estatus),
           avance: Number.isFinite(avance) ? avance : "",
-          monto: Number.isFinite(monto) ? monto : "",
+          monto: obtenerMontoParaExcel(registro.monto),
           comentarios: textoReporte(registro.comentarios),
           fechaActualizacion: obtenerFechaReporte(
             registro.fecha_actualizacion,
@@ -951,6 +947,8 @@
           width: 35,
         },
       ];
+      // ExcelJS conserva el monto como número y aplica el formato a toda la columna.
+      hoja.getColumn("monto").numFmt = "$#,##0.00";
 
       const filaEncabezado = hoja.getRow(1);
       filaEncabezado.eachCell((celda) => {
@@ -1008,12 +1006,6 @@
           celdaFecha.numFmt = "dd/mm/yyyy hh:mm";
         } else {
           celdaFecha.value = "";
-        }
-        const celdaMonto = fila.getCell("monto");
-        if (typeof celdaMonto.value === "number") {
-          celdaMonto.numFmt = "$#,##0.00";
-        } else {
-          celdaMonto.value = "";
         }
       });
 
