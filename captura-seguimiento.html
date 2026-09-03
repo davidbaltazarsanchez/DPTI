@@ -6,8 +6,9 @@
     <title>Seguimiento de acciones</title>
     <link rel="stylesheet" href="css/estilos.css" />
     <link rel="stylesheet" href="css/seguimiento.css" />
+    <link rel="stylesheet" href="css/ayuda.css" />
   </head>
-  <body class="seguimiento-page">
+  <body class="seguimiento-page" data-video-ayuda="img/Registro_actividades.mp4">
     <div class="layout seguimiento-layout">
       <header id="menu_principal" class="site-header">
         <div class="header-container seguimiento-header">
@@ -42,6 +43,18 @@
               <span id="seguimiento-header-rol"></span>
             </div>
           </div>
+
+          <button
+            class="ayuda-boton"
+            type="button"
+            aria-label="Abrir ayuda"
+            aria-haspopup="dialog"
+            aria-controls="ayuda-modal"
+            aria-expanded="false"
+          >
+            <span class="ayuda-boton__icono" aria-hidden="true">?</span>
+            <span class="ayuda-boton__texto">Ayuda</span>
+          </button>
         </div>
 
         <div
@@ -688,6 +701,7 @@
     ></script>
     <script defer src="js/supabase-config.js"></script>
     <script defer src="js/menu-lateral.js"></script>
+    <script defer src="js/ayuda.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- ExcelJS genera el reporte con estilos, sin requerir backend adicional. -->
     <script

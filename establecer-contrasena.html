@@ -7,10 +7,11 @@
     <link rel="icon" href="img/logo-gob-mx_ok.png" />
     <link rel="stylesheet" href="css/estilos.css" />
     <link rel="stylesheet" href="css/establecer-contrasena.css" />
+    <link rel="stylesheet" href="css/ayuda.css" />
   </head>
-  <body class="contrasena-page">
+  <body class="contrasena-page" data-video-ayuda="img/Cambio_contraseña.mp4">
     <div class="layout contrasena-layout">
-      <header class="site-header"><div class="header-container contrasena-header"><div class="brand-logos"><img src="img/logo-gob-mx_ok.png" class="logo-gob" alt="Gobierno de México" /></div></div></header>
+      <header class="site-header"><div class="header-container contrasena-header"><div class="brand-logos"><img src="img/logo-gob-mx_ok.png" class="logo-gob" alt="Gobierno de México" /></div><button class="ayuda-boton" type="button" aria-label="Abrir ayuda" aria-haspopup="dialog" aria-controls="ayuda-modal" aria-expanded="false"><span class="ayuda-boton__icono" aria-hidden="true">?</span><span class="ayuda-boton__texto">Ayuda</span></button></div></header>
       <main class="contrasena-main">
         <section class="contrasena-tarjeta" aria-labelledby="contrasena-titulo">
           <div id="contrasena-verificando" class="contrasena-estado" aria-live="polite"><span class="contrasena-cargador" aria-hidden="true"></span><p>Validando enlace seguro…</p></div>
@@ -36,6 +37,7 @@
     </div>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script defer src="js/supabase-config.js"></script>
+    <script defer src="js/ayuda.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script defer src="js/establecer-contrasena.js"></script>
   </body>
