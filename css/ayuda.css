@@ -55,16 +55,12 @@
 }
 
 .seguimiento-page .ayuda-boton {
-  order: 3;
-  margin-left: 10px;
-}
-
-.seguimiento-page:not(.seguimiento-autenticado) .ayuda-boton {
-  margin-left: auto;
+  order: initial;
+  margin-left: 0;
 }
 
 .seguimiento-page .menu-toggle {
-  order: 4;
+  order: initial;
 }
 
 .contrasena-header {

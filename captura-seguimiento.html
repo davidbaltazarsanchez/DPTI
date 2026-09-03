@@ -12,19 +12,6 @@
     <div class="layout seguimiento-layout">
       <header id="menu_principal" class="site-header">
         <div class="header-container seguimiento-header">
-          <button
-            id="menu-toggle"
-            class="menu-toggle"
-            type="button"
-            aria-label="Abrir menú"
-            aria-expanded="false"
-            aria-controls="menu-lateral"
-          >
-            <span class="menu-toggle__line" aria-hidden="true"></span>
-            <span class="menu-toggle__line" aria-hidden="true"></span>
-            <span class="menu-toggle__line" aria-hidden="true"></span>
-          </button>
-
           <div class="brand-logos" aria-label="Logotipos institucionales">
             <img
               src="img/logo-gob-mx_ok.png"
@@ -33,28 +20,43 @@
             />
           </div>
 
-          <div
-            id="seguimiento-header-usuario"
-            class="seguimiento-header__usuario"
-            hidden
-          >
-            <div class="seguimiento-header__identidad">
-              <strong id="seguimiento-header-nombre"></strong>
-              <span id="seguimiento-header-rol"></span>
+          <div class="seguimiento-header__derecha">
+            <div
+              id="seguimiento-header-usuario"
+              class="seguimiento-header__usuario"
+              hidden
+            >
+              <div class="seguimiento-header__identidad">
+                <strong id="seguimiento-header-nombre"></strong>
+                <span id="seguimiento-header-rol"></span>
+              </div>
             </div>
-          </div>
 
-          <button
-            class="ayuda-boton"
-            type="button"
-            aria-label="Abrir ayuda"
-            aria-haspopup="dialog"
-            aria-controls="ayuda-modal"
-            aria-expanded="false"
-          >
-            <span class="ayuda-boton__icono" aria-hidden="true">?</span>
-            <span class="ayuda-boton__texto">Ayuda</span>
-          </button>
+            <button
+              class="ayuda-boton"
+              type="button"
+              aria-label="Abrir ayuda"
+              aria-haspopup="dialog"
+              aria-controls="ayuda-modal"
+              aria-expanded="false"
+            >
+              <span class="ayuda-boton__icono" aria-hidden="true">?</span>
+              <span class="ayuda-boton__texto">Ayuda</span>
+            </button>
+
+            <button
+              id="menu-toggle"
+              class="menu-toggle"
+              type="button"
+              aria-label="Abrir menú"
+              aria-expanded="false"
+              aria-controls="menu-lateral"
+            >
+              <span class="menu-toggle__line" aria-hidden="true"></span>
+              <span class="menu-toggle__line" aria-hidden="true"></span>
+              <span class="menu-toggle__line" aria-hidden="true"></span>
+            </button>
+          </div>
         </div>
 
         <div

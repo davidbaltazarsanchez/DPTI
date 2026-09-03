@@ -30,10 +30,18 @@
   min-width: 0;
 }
 
-.seguimiento-page .seguimiento-header__usuario {
+.seguimiento-page .seguimiento-header__derecha {
   order: 2;
   min-width: 0;
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.seguimiento-page .seguimiento-header__usuario {
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -63,11 +71,12 @@
 }
 
 .seguimiento-page .menu-toggle {
-  order: 3;
+  order: initial;
+  margin-left: 0;
 }
 
 .seguimiento-page.seguimiento-autenticado .menu-toggle {
-  margin-left: 2px;
+  margin-left: 0;
 }
 
 .seguimiento-app button,
@@ -1349,13 +1358,26 @@
     flex-wrap: wrap;
   }
 
+  .seguimiento-page.seguimiento-autenticado .seguimiento-header__derecha {
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+  }
+
   .seguimiento-page.seguimiento-autenticado .seguimiento-header__usuario {
-    order: 4;
+    order: 3;
     width: 100%;
     min-height: 40px;
     padding: 5px 8px 2px;
     justify-content: space-between;
     border-top: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .seguimiento-page.seguimiento-autenticado .ayuda-boton {
+    order: 1;
+  }
+
+  .seguimiento-page.seguimiento-autenticado .menu-toggle {
+    order: 2;
   }
 
   .seguimiento-page.seguimiento-autenticado .seguimiento-header__identidad {
