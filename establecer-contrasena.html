@@ -14,10 +14,10 @@
       <main class="contrasena-main">
         <section class="contrasena-tarjeta" aria-labelledby="contrasena-titulo">
           <div id="contrasena-verificando" class="contrasena-estado" aria-live="polite"><span class="contrasena-cargador" aria-hidden="true"></span><p>Validando enlace seguro…</p></div>
-          <div id="contrasena-invalido" class="contrasena-estado" hidden><span class="contrasena-estado__icono" aria-hidden="true">!</span><h1>El enlace es inválido o ha vencido</h1><p>Solicita al administrador un nuevo enlace.</p><a class="contrasena-boton contrasena-boton--secundario" href="index.html">Volver al inicio</a></div>
+          <div id="contrasena-invalido" class="contrasena-estado" hidden><span class="contrasena-estado__icono" aria-hidden="true">!</span><h1 id="contrasena-invalido-titulo">El enlace es inválido o ha vencido</h1><p id="contrasena-invalido-texto">Solicita al administrador un nuevo enlace.</p><a class="contrasena-boton contrasena-boton--secundario" href="index.html">Volver al inicio</a></div>
           <div id="contrasena-formulario-contenido" hidden>
             <p class="contrasena-sobretitulo">Acceso seguro</p><h1 id="contrasena-titulo">Establecer contraseña</h1><p>Crea una contraseña para ingresar al sistema.</p>
-            <!-- Se muestra solamente después de validar al usuario de la sesión aislada del enlace. -->
+            <!-- Se muestra solamente después de validar el token mediante la Edge Function. -->
             <p id="establecer-destinatario" class="establecer-contrasena-destinatario" hidden>
               Cambiarás la contraseña de:
               <strong id="establecer-correo"></strong>

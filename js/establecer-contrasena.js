@@ -5,6 +5,8 @@
   const elementos = {
     verificando: porId("contrasena-verificando"),
     invalido: porId("contrasena-invalido"),
+    invalidoTitulo: porId("contrasena-invalido-titulo"),
+    invalidoTexto: porId("contrasena-invalido-texto"),
     contenido: porId("contrasena-formulario-contenido"),
     form: porId("contrasena-form"),
     nueva: porId("contrasena-nueva"),
@@ -17,20 +19,11 @@
   };
 
   const urlInicial = new URL(window.location.href);
-  const fragmentoInicial = new URLSearchParams(
-    urlInicial.hash.replace(/^#/, ""),
-  );
-  const tipoInicial =
-    fragmentoInicial.get("type") ?? urlInicial.searchParams.get("type");
-  const tieneTipoValido = ["invite", "recovery"].includes(tipoInicial);
-  const tieneFlujoDeEnlace =
-    tieneTipoValido ||
-    fragmentoInicial.has("access_token") ||
-    urlInicial.searchParams.has("code") ||
-    urlInicial.searchParams.has("token_hash");
+  const tokenEnlace = urlInicial.searchParams.get("token")?.trim() ?? "";
+  const tieneFlujoDeEnlace = /^[A-Za-z0-9_-]{40,100}$/.test(tokenEnlace);
 
   let procesando = false;
-  let clienteRecuperacion = null;
+  let clienteEnlace = null;
 
   function registrarError(contexto, error) {
     console.error(`[Establecer contraseña] ${contexto}`, {
@@ -62,10 +55,17 @@
     elementos.guardar.disabled = !formularioValido();
   }
 
-  function mostrarEnlaceInvalido() {
+  function mostrarEnlaceInvalido(codigo = "ENLACE_INVALIDO") {
     configurarFormulario(false);
     elementos.correo.textContent = "";
     elementos.destinatario.hidden = true;
+    const utilizado = codigo === "ENLACE_UTILIZADO";
+    elementos.invalidoTitulo.textContent = utilizado
+      ? "Este enlace ya fue utilizado"
+      : "El enlace es inválido o ha vencido";
+    elementos.invalidoTexto.textContent = utilizado
+      ? "Solicita al administrador un nuevo enlace si necesitas cambiar nuevamente tu contraseña."
+      : "Solicita al administrador un nuevo enlace.";
     elementos.verificando.hidden = true;
     elementos.contenido.hidden = true;
     elementos.invalido.hidden = false;
@@ -75,7 +75,7 @@
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
-  function crearClienteAislado() {
+  function crearClienteEnlace() {
     const configuracion = window.supabasePublicConfig;
     if (!window.supabase?.createClient || !configuracion) return null;
 
@@ -86,51 +86,35 @@
         auth: {
           persistSession: false,
           autoRefreshToken: false,
-          detectSessionInUrl: true,
-          storageKey: "recuperacion-temporal",
+          detectSessionInUrl: false,
+          storageKey: "enlace-contrasena-temporal",
         },
       },
     );
   }
 
-  function esperarSesionDelEnlace(cliente) {
-    return new Promise((resolve, reject) => {
-      let terminado = false;
-      let temporizador;
-      let suscripcion;
+  async function invocarEnlace(body) {
+    const { data, error } = await clienteEnlace.functions.invoke(
+      "procesar-enlace-contrasena",
+      { body },
+    );
 
-      const finalizar = (resultado) => {
-        if (terminado) return;
-        terminado = true;
-        window.clearTimeout(temporizador);
-        suscripcion?.unsubscribe();
-        resolve(resultado);
-      };
+    if (!error) return data;
 
-      temporizador = window.setTimeout(() => finalizar(null), 7000);
+    let detalle = data;
+    if (!detalle && typeof error.context?.json === "function") {
+      try {
+        detalle = await error.context.json();
+      } catch {
+        detalle = null;
+      }
+    }
 
-      const { data: listener } = cliente.auth.onAuthStateChange(
-        (evento, session) => {
-          const eventoPermitido =
-            evento === "PASSWORD_RECOVERY" ||
-            evento === "SIGNED_IN" ||
-            (evento === "INITIAL_SESSION" && tieneFlujoDeEnlace);
-
-          if (eventoPermitido && session) finalizar({ evento, session });
-        },
-      );
-      suscripcion = listener.subscription;
-      if (terminado) suscripcion.unsubscribe();
-
-      cliente.auth.getSession().then(({ error }) => {
-        if (error && !terminado) {
-          terminado = true;
-          window.clearTimeout(temporizador);
-          suscripcion?.unsubscribe();
-          reject(error);
-        }
-      });
-    });
+    const fallo = new Error(
+      detalle?.mensaje ?? "No fue posible procesar el enlace.",
+    );
+    fallo.codigo = detalle?.codigo ?? error.code ?? "ERROR_FUNCION";
+    throw fallo;
   }
 
   function alternarVisibilidad() {
@@ -149,7 +133,7 @@
     event.preventDefault();
     mostrarMensaje();
 
-    if (!clienteRecuperacion || !formularioValido()) {
+    if (!clienteEnlace || !formularioValido()) {
       mostrarMensaje(
         elementos.nueva.value.length < 8
           ? "La contraseña debe tener al menos 8 caracteres."
@@ -167,29 +151,12 @@
     elementos.guardar.textContent = "Guardando contraseña…";
 
     try {
-      const { error } = await clienteRecuperacion.auth.updateUser({
-        password: elementos.nueva.value,
+      const resultado = await invocarEnlace({
+        accion: "CAMBIAR",
+        token: tokenEnlace,
+        contrasena: elementos.nueva.value,
       });
-      if (error) throw error;
-
-      const { error: errorActivacion } = await clienteRecuperacion.rpc(
-        "registrar_activacion_usuario",
-      );
-      if (errorActivacion) {
-        registrarError(
-          "La contraseña cambió, pero no fue posible registrar la activación.",
-          errorActivacion,
-        );
-      }
-
-      const { error: errorSalida } =
-        await clienteRecuperacion.auth.signOut();
-      if (errorSalida) {
-        registrarError(
-          "No fue posible cerrar la sesión temporal.",
-          errorSalida,
-        );
-      }
+      if (resultado?.ok !== true) throw new Error("Respuesta no válida.");
 
       elementos.form.reset();
       if (typeof window.Swal?.fire === "function") {
@@ -206,8 +173,21 @@
       window.location.replace("index.html");
     } catch (error) {
       registrarError("No fue posible actualizar la contraseña.", error);
+      if (
+        ["ENLACE_UTILIZADO", "ENLACE_VENCIDO", "ENLACE_INVALIDO"].includes(
+          error?.codigo,
+        )
+      ) {
+        procesando = false;
+        elementos.guardar.setAttribute("aria-busy", "false");
+        elementos.guardar.textContent = "Guardar contraseña";
+        mostrarEnlaceInvalido(error.codigo);
+        return;
+      }
       mostrarMensaje(
-        "No fue posible establecer la contraseña. Solicita al administrador un nuevo enlace.",
+        error?.codigo === "ENLACE_EN_PROCESO"
+          ? "Este enlace está siendo utilizado en otra ventana. Espera un momento e intenta nuevamente."
+          : "No fue posible establecer la contraseña. Puedes volver a intentarlo mientras el enlace siga vigente.",
       );
       procesando = false;
       configurarFormulario(true);
@@ -224,39 +204,26 @@
       return;
     }
 
-    clienteRecuperacion = crearClienteAislado();
-    if (!clienteRecuperacion) {
+    clienteEnlace = crearClienteEnlace();
+    if (!clienteEnlace) {
       mostrarEnlaceInvalido();
       return;
     }
 
     try {
-      const resultado = await esperarSesionDelEnlace(clienteRecuperacion);
+      const resultado = await invocarEnlace({
+        accion: "VALIDAR",
+        token: tokenEnlace,
+      });
+      const correoUsuario = resultado?.email?.trim();
+
+      if (resultado?.ok !== true || !correoUsuario) {
+        mostrarEnlaceInvalido();
+        return;
+      }
+
       limpiarUrl();
-      if (!resultado?.session) {
-        mostrarEnlaceInvalido();
-        return;
-      }
-
-      const {
-        data: { user },
-        error: errorUsuario,
-      } = await clienteRecuperacion.auth.getUser();
-
-      const correoUsuario = user?.email?.trim();
-
-      if (errorUsuario || !user || !correoUsuario) {
-        if (errorUsuario) {
-          registrarError(
-            "No fue posible confirmar el usuario del enlace.",
-            errorUsuario,
-          );
-        }
-        mostrarEnlaceInvalido();
-        return;
-      }
-
-      // El correo procede exclusivamente del usuario autenticado por el cliente aislado.
+      // El correo procede exclusivamente del usuario asociado al token validado en servidor.
       elementos.correo.textContent = correoUsuario;
       elementos.destinatario.hidden = false;
       elementos.verificando.hidden = true;
@@ -266,8 +233,7 @@
       elementos.nueva.focus();
     } catch (error) {
       registrarError("No fue posible validar el enlace.", error);
-      limpiarUrl();
-      mostrarEnlaceInvalido();
+      mostrarEnlaceInvalido(error?.codigo);
     }
   }
 
